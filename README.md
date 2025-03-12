@@ -16,7 +16,7 @@ txApi creates a simple wrapper around txAdmin's web API endpoints, letting you p
 ## Installation
 
 1. Download or clone this repository to your FiveM server's resources folder
-2. Make sure the resource is in an ensured repository, or add `ensure txApi` to your server.cfg
+2. Make sure the resource is in an ensured directory, or add `ensure txApi` to your server.cfg
 3. Configure your scripts to use the txApi exports
 
 ## Usage
