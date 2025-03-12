@@ -16,11 +16,27 @@ function _players.new()
 
         -- Create the query params
         local queryParams = {
-            "sortingKey=" .. (options.sortingKey or "tsJoined"),
-            "sortingDesc=" .. (options.sortingDesc or "true"),
-
-            -- TODO: Add other sorting/search/filter methods
+            "sortingKey=" .. (options.sortingKey or "tsJoined"), -- playTime, tsJoined, tsLastConnection
+            "sortingDesc=" .. (options.sortingDesc or "true"), -- true, false
         }
+
+        -- Ability to search by name
+        if options.name then
+            table.insert(queryParams, "searchType=playerName")
+            table.insert(queryParams, "searchValue=" .. options.name)
+        end
+
+        -- Ability to search by license
+        if options.license then
+            table.insert(queryParams, "searchType=playerIds")
+            table.insert(queryParams, "searchValue=" .. options.license)
+        end
+
+        -- Ability to search by notes
+        if options.notes then
+            table.insert(queryParams, "searchType=playerNotes")
+            table.insert(queryParams, "searchValue=" .. options.notes)
+        end
 
         -- Convert the query params to a single string
         local queryString = table.concat(queryParams, "&")
