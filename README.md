@@ -45,7 +45,7 @@ end)
 
 ```lua
 -- Get all players sorted by join time (newest first)
-txAdminApi.players:search({
+api.players:search({
     sortingKey = "tsJoined", -- Field to sort by
     sortingDesc = "true"     -- Descending order
 }, function(data)
@@ -57,7 +57,7 @@ end)
 
 ```lua
 -- Get action history sorted by timestamp (newest first)
-txAdminApi.actions:search({
+api.actions:search({
     sortingKey = "timestamp", -- Field to sort by
     sortingDesc = "true"     -- Descending order
 }, function(data)
