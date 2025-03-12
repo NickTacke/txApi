@@ -8,6 +8,12 @@ function _actions.new()
     function self:search(options, callback)
         options = options or {}
 
+        -- Make sure arguments are provided
+        if not callback then
+            print("^1No callback provided for actions search!^7")
+            return
+        end
+        
         -- Create the query params
         local queryParams = {
             "sortingKey=" .. (options.sortingKey or "timestamp"),
@@ -24,26 +30,46 @@ function _actions.new()
             "/history/search?" .. queryString,
             {},
             function(data)
-                -- Probably better to move this up but whatever
-                if not callback then
-                    print("^1No callback provided for actions search!^7")
-                    return
-                end
                 callback(data)
             end
         )
     end
 
     function self:stats(callback)
+        -- Make sure arguments are provided
+        if not callback then
+            print("^1No callback provided for actions stats!^7")
+            return
+        end
+
         API:request(
             "GET",
             "/history/stats",
             {},
             function(data)
-                if not callback then
-                    print("^1No callback provided for actions stats!^7")
-                    return
-                end
+                callback(data)
+            end
+        )
+    end
+
+    function self:revoke(actionId, callback)
+        -- Make sure arguments are provided
+        if not actionId then
+            print("^1No actionId provided for action revoke!^7")
+            return
+        end
+
+        if not callback then
+            print("^1No callback provided for action revoke!^7")
+            return
+        end
+
+        -- Request txAdmin to revoke the action
+        API:request(
+            "POST",
+            "/history/revokeAction",
+            { actionId = actionId },
+            function(data)
                 callback(data)
             end
         )
