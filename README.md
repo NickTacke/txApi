@@ -53,7 +53,31 @@ api.players:search({
 end)
 ```
 
-### Searching Admin Actions
+### Sending Direct Message to Players
+
+```lua
+api.players:message("74309af47c7f34f51d74631e717d5d72d9bd277a", "Hello!", function(response)
+    print(json.encode(response))
+end)
+```
+
+### Kicking Players
+
+```lua
+api.players:kick("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!", function(response)
+    print(json.encode(response))
+end)
+```
+
+### Warning Players
+
+```lua
+api.players:warn("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!", function(response)
+    print(json.encode(response))
+end)
+```
+
+### Searching Ban/Warn Actions
 
 ```lua
 -- Get action history sorted by timestamp (newest first)
@@ -62,6 +86,22 @@ api.actions:search({
     sortingDesc = "true"     -- Descending order
 }, function(data)
     print(json.encode(data))
+end)
+```
+
+### Getting Ban/Warn Statistics
+
+```lua
+api.actions:stats(function(data)
+    print(json.encode(data))
+end)
+```
+
+### Revoking a Ban/Warn
+
+```lua
+api.actions:revoke("WEUE-LL51", function(response)
+    print(json.encode(response))
 end)
 ```
 
