@@ -78,10 +78,11 @@ end)
 
 ### Actions Module
 
-- `txAdminApi.actions:search(options, callback)` - Search admin actions
+- `txAdminApi.actions:search(options, callback)` - Search actions (warns/bans)
   - Options:
     - `sortingKey` - Field to sort by (default: "timestamp")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
+- `txAdminApi.actions:stats(callback)` - Get statistics for warns/bans
 
 ## Security Note
 
