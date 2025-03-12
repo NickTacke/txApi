@@ -35,5 +35,60 @@ function _players.new()
         )
     end
 
+    -- TODO: Research if possible with netId (mutex?)
+    function self:message(license, message, callback)
+        -- Make sure arguments are provided
+        if not license then
+            print("^1No license provided for player message!^7")
+            return
+        end
+
+        -- Ask txAdmin to message the player
+        API:request(
+            "POST",
+            "/player/message?license=" .. license,
+            { message = message or "No message provided" },
+            function(data)
+                callback(data)
+            end
+        )
+    end
+
+    function self:kick(license, reason, callback)
+        -- Make sure arguments are provided
+        if not license then
+            print("^1No license provided for player kick!^7")
+            return
+        end
+
+        -- Ask txAdmin to kick the player
+        API:request(
+            "POST",
+            "/player/kick?license=" .. license,
+            { reason = reason or "No reason provided" },
+            function(data)
+                callback(data)
+            end
+        )
+    end
+
+    function self:warn(license, reason, callback)
+        -- Make sure arguments are provided
+        if not license then
+            print("^1No license provided for player warn!^7")
+            return
+        end
+
+        -- Ask txAdmin to warn the player
+        API:request(
+            "POST",
+            "/player/warn?license=" .. license,
+            { reason = reason or "No reason provided"},
+            function(data)
+                callback(data)
+            end
+        )
+    end
+
     return self
 end
