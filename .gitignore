@@ -1,2 +1,1 @@
-# Prevent pushing any modified settings
-settings/*
+settings/config.lua
