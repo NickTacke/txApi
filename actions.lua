@@ -5,14 +5,31 @@ _actions.__index = _actions
 function _actions.new()
     local self = setmetatable({}, _actions)
 
-    function self:search()
+    function self:search(options, callback)
+        options = options or {}
+
+        -- Create the query params
+        local queryParams = {
+            "sortingKey=" .. (options.sortingKey or "timestamp"),
+            "sortingDesc=" .. (options.sortingOrder or "true"),
+
+            -- TODO: Add other sorting/search/filter methods
+        }
+
+        -- Convert the query params to a single string
+        local queryString = table.concat(queryParams, "&")
+
         API:request(
             "GET",
-            "/history/search" ..
-            "?sortingKey=timestamp",
+            "/history/search?" .. queryString,
             {},
             function(data)
-                print(json.encode(data))
+                -- Probably better to move this up but whatever
+                if not callback then
+                    print("^1No callback provided for actions search!^7")
+                    return
+                end
+                callback(data)
             end
         )
     end
