@@ -1,9 +1,9 @@
 -- main.lua
-local txApi = {}
-txApi.__index = txApi
+_txApi = {}
+_txApi.__index = _txApi
 
-function txApi.new(hostname, username, password)
-    local self = setmetatable({}, txApi)
+function _txApi.new(hostname, username, password)
+    local self = setmetatable({}, _txApi)
 
     -- Log in to txAdmin for use of the API
     API:login(hostname, username, password)
@@ -16,4 +16,12 @@ function txApi.new(hostname, username, password)
     return self
 end
 
-exports('new', txApi.new)
+local txApi = _txApi.new(
+    Config.Hostname, 
+    Config.Username, 
+    Config.Password
+)
+
+exports('get', function()
+    return txApi    
+end)
