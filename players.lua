@@ -43,6 +43,11 @@ function _players.new()
             return
         end
 
+        -- Check if license has license: prefix, if so remove it
+        if license:sub(1, 8) == "license:" then
+            license = license:sub(9)
+        end
+
         -- Ask txAdmin to message the player
         API:request(
             "POST",
@@ -61,6 +66,11 @@ function _players.new()
             return
         end
 
+        -- Check if license has license: prefix, if so remove it
+        if license:sub(1, 8) == "license:" then
+            license = license:sub(9)
+        end
+
         -- Ask txAdmin to kick the player
         API:request(
             "POST",
@@ -77,6 +87,11 @@ function _players.new()
         if not license then
             print("^1No license provided for player warn!^7")
             return
+        end
+
+        -- Check if license has license: prefix, if so remove it
+        if license:sub(1, 8) == "license:" then
+            license = license:sub(9)
         end
 
         -- Ask txAdmin to warn the player
