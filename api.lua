@@ -5,6 +5,8 @@ _api.__index = _api
 function _api.new(hostname, username, password)
     local self = setmetatable({}, _api)
 
+    print(hostname, username, password)
+
     -- Check if required parameters are provided
     if not hostname or not username or not password then
         error("Hostname, username and password are required")
@@ -27,42 +29,41 @@ function _api.new(hostname, username, password)
     
     -- Send the login request to the auth endpoint
     PerformHttpRequest(
-        hostname .. "/auth/login",
+        hostname .. "/auth/password",
         function(statusCode, response, headers)
             -- Nicely coloured output :)
-            print("^2[txApi]^7 Attempting to authenticate to txAdmin!")
+            print("^2Attempting to authenticate to txAdmin!^7")
 
             -- Check if the request was successful
-            if statusCode == 200 then
-                print("^2[txApi]^7 Successfully authenticated to txAdmin!")
-            else
-                print("^1[txApi]^7 Failed to authenticate to txAdmin!")
+            if statusCode ~= 200 then
+                print("^1Failed to authenticate to txAdmin!^7", statusCode)
+                return
             end
 
             -- Extract the session cookie
             if headers and headers["Set-Cookie"] then
                 self.session = headers["Set-Cookie"]
-                print("^2[txApi]^7 Session cookie extracted!")
+                print("^2Session cookie extracted!^7")
             else
-                print("^1[txApi]^7 Failed to extract session cookie!")
+                print("^1Failed to extract session cookie!^7")
             end
 
             -- Check response data
             if not response or response == "" then
-                print("^1[txApi]^7 Invalid response received when authenticating!")
+                print("^1Invalid response received when authenticating!^7")
                 return
             end
             
             -- And attempt to decode the json response
             local success, data = pcall(json.decode, response)
-            if not success then print("^1[txApi]^7 Failed to decode json response!") return end
+            if not success then print("^1Failed to decode json response!^7") return end
 
             -- Extract the CSRF token from the json response
             if data and data.csrfToken then
                 self.csrfToken = data.csrfToken
-                print("^2[txApi]^7 CSRF token extracted!")
+                print("^2CSRF token extracted!^7")
             else
-                print("^1[txApi]^7 Failed to extract CSRF token!")
+                print("^1Failed to extract CSRF token!^7")
             end
 
             -- Set standard headers for future api calls
@@ -74,7 +75,7 @@ function _api.new(hostname, username, password)
         end,
         "POST",
         loginData,
-        {} -- Empty headers, might add content-type to check for success
+        { ["Content-Type"] = "application/json" }
     )
     return self
 end

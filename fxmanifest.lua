@@ -10,6 +10,7 @@ description 'A sketchy FiveM resource that uses txAdmin web-endpoint to access p
 
 server_only 'yes'
 server_scripts {
-    'players.lua',
     'api.lua',
+    'players.lua',
+    'main.lua'
 }
