@@ -78,6 +78,9 @@ end)
   - options:
     - `sortingKey` - Field to sort by (default: "tsJoined")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
+- `txAdminApi.players:message(license, message, callback)` - Send an ingame direct message
+- `txAdminApi.players:kick(license, reason, callback)` - Kick the player using txAdmin
+- `txAdminApi.players:warn(license, reason, callback)` - Warn the player using txAdmin
 
 ### Actions Module
 
