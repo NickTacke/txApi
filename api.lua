@@ -81,7 +81,6 @@ function _api:login(hostname, username, password)
 end
 
 function _api:validate()
-    print(self.session, self.csrfToken, self.standardHeaders)
     local sessionValid = self.session and self.session ~= nil
     local csrfValid = self.csrfToken and self.csrfToken ~= nil
     local standardHeadersValid = self.standardHeaders and self.standardHeaders ~= nil
