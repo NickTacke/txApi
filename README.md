@@ -118,6 +118,9 @@ end)
   - options:
     - `sortingKey` - Field to sort by (default: "tsJoined")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
+    - `name` - Search for specific player(s) by name (default: nil)
+    - `license` - Search for a specific player by license (default: nil)
+    - `notes` - Search for specific player(s) by something in their notes (default: nil)
 - `api.players:message(license, message, callback)` - Send an ingame direct message
 - `api.players:kick(license, reason, callback)` - Kick the player using txAdmin
 - `api.players:warn(license, reason, callback)` - Warn the player using txAdmin
@@ -128,6 +131,9 @@ end)
   - options:
     - `sortingKey` - Field to sort by (default: "timestamp")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
+    - `actionId` - Search for a specific action by actionId (default: nil)
+    - `reason` - Search for specific action(s) by reason (default: nil)
+    - `identifier` - Search for actions of a specific player with identifier (default: nil)
 - `api.actions:stats(callback)` - Get statistics for warns/bans
 - `api.actions:revoke(actionId, callback)` - Get statistics for warns/bans
   - actionId: string id for the action id (example: BG5N-STDV)
