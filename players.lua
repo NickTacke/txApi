@@ -8,6 +8,12 @@ function _players.new()
     function self:search(options, callback)
         options = options or {}
 
+        -- Make sure arguments are provided
+        if not callback then
+            print("^1No callback provided for player search!^7")
+            return
+        end
+
         -- Create the query params
         local queryParams = {
             "sortingKey=" .. (options.sortingKey or "tsJoined"),
@@ -24,11 +30,6 @@ function _players.new()
             "/player/search?" .. queryString,
             {},
             function(data)
-                -- Probably better to move this up but whatever
-                if not callback then
-                    print("^1No callback provided for player search!^7")
-                    return
-                end
                 callback(data)
             end
         )
