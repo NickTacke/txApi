@@ -1,15 +1,15 @@
--- players.lua
-_players = {}
-_players.__index = _players
+-- actions.lua
+_actions = {}
+_actions.__index = _actions
 
-function _players.new()
-    local self = setmetatable({}, _players)
+function _actions.new()
+    local self = setmetatable({}, _actions)
 
     function self:search()
         API:request(
             "GET",
-            "/player/search" ..
-            "?sortingKey=tsJoined",
+            "/history/search" ..
+            "?sortingKey=timestamp",
             {},
             function(data)
                 print(json.encode(data))

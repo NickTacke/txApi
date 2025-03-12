@@ -100,6 +100,13 @@ function _api:request(method, path, body, callback)
         return
     end
 
+    print("^2Requesting to endpoint!^7")
+    -- Show data
+    print(self.hostname .. path)
+    print(method)
+    print(body)
+    print(self.standardHeaders)
+
     -- Do the request to the endpoint
     PerformHttpRequest(
         self.hostname .. path,
@@ -107,6 +114,7 @@ function _api:request(method, path, body, callback)
             -- Check if the request was successful
             if statusCode ~= 200 then
                 print("^1Endpoint didn't return 200!^7", statusCode)
+                print(response)
                 return
             end
 
@@ -120,9 +128,9 @@ function _api:request(method, path, body, callback)
                 callback(data)
             end
         end,
-        method or "GET",
-        body or {},
-        self.standardHeaders or {}
+        method,
+        json.encode(body),
+        self.standardHeaders
     )
 end
 
