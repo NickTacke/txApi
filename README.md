@@ -18,6 +18,7 @@ txApi creates a simple wrapper around txAdmin's web API endpoints, letting you p
 1. Download or clone this repository to your FiveM server's resources folder
 2. Make sure the resource is in an ensured directory, or add `ensure txApi` to your server.cfg
 3. Configure your scripts to use the txApi exports
+4. Make sure to change the login variables in settings/config.lua
 
 ## Usage
 
@@ -25,7 +26,7 @@ txApi creates a simple wrapper around txAdmin's web API endpoints, letting you p
 
 ```lua
 -- In your own server script
-local api = exports.txApi:new("http://your-server-ip:port", "adminUsername", "adminPassword")
+local api = exports.txApi:get()
 
 -- Wait for API to be ready
 CreateThread(function()
@@ -109,7 +110,8 @@ end)
 
 ### Main Module
 
-- `exports.txApi:new(hostname, username, password)` - Creates a new txApi instance
+- `api:get()` - Returns the instance made in the txApi resource
+- `api:new(hostname, username, password)` - Creates a new txApi instance (shouldn't be used tbh)
 - `api:isReady()` - Returns true when authenticated and ready to use
 
 ### Players Module
