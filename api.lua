@@ -97,6 +97,11 @@ function _api:request(method, path, body, callback)
         return
     end
 
+    -- Print debug information
+    -- print("^2Requesting endpoint: ^7", path)
+    -- print("^2Method: ^7", method)
+    -- print("^2Body: ^7", json.encode(body))
+
     -- Do the request to the endpoint
     PerformHttpRequest(
         self.hostname .. path,
@@ -105,7 +110,6 @@ function _api:request(method, path, body, callback)
             if statusCode ~= 200 then
                 print("^1Endpoint didn't return 200!^7", statusCode)
                 print("^1Response:^7", response)
-                return
             end
 
             -- Since the standard headers normally contain json content type
