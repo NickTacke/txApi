@@ -22,6 +22,24 @@ function _actions.new()
             -- TODO: Add other sorting/search/filter methods
         }
 
+        -- Ability to search by action id
+        if options.actionId then
+            table.insert(queryParams, "searchType=actionId")
+            table.insert(queryParams, "searchValue=" .. options.actionId)
+        end
+
+        -- Ability to search by ban/warn reason
+        if options.reason then
+            table.insert(queryParams, "searchType=reason")
+            table.insert(queryParams, "searchValue=" .. options.reason)
+        end
+
+        -- Ability to search by player identifier
+        if options.identifier then
+            table.insert(queryParams, "searchType=identifiers")
+            table.insert(queryParams, "searchValue=" .. options.identifier)
+        end
+
         -- Convert the query params to a single string
         local queryString = table.concat(queryParams, "&")
 
