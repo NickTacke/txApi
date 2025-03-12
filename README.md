@@ -35,6 +35,9 @@ CreateThread(function()
     print("txAdmin API is ready to use!")
     
     -- Your code using the API here
+    api.actions:search({}, function(data)
+        print(json.encode(data))
+    end)
 end)
 ```
 
