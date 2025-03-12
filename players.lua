@@ -11,7 +11,7 @@ function _players.new()
         -- Create the query params
         local queryParams = {
             "sortingKey=" .. (options.sortingKey or "tsJoined"),
-            "sortingDesc=" .. (options.sortingOrder or "true"),
+            "sortingDesc=" .. (options.sortingDesc or "true"),
 
             -- TODO: Add other sorting/search/filter methods
         }

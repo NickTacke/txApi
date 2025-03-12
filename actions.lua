@@ -11,7 +11,7 @@ function _actions.new()
         -- Create the query params
         local queryParams = {
             "sortingKey=" .. (options.sortingKey or "timestamp"),
-            "sortingDesc=" .. (options.sortingOrder or "true"),
+            "sortingDesc=" .. (options.sortingDesc or "true"),
 
             -- TODO: Add other sorting/search/filter methods
         }
