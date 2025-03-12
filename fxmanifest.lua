@@ -6,7 +6,7 @@ name 'txApi'
 author 'Arceas'
 version '1.0.0'
 repository 'https://github.com/NickTacke/txApi'
-description 'A sketchy FiveM resource that uses txAdmin web-endpoint to access players/actions'
+description 'A sketchy FiveM resource that uses txAdmin web-endpoints to access players/actions'
 
 server_only 'yes'
 server_scripts {

@@ -6,7 +6,7 @@ function _players.new()
     local self = setmetatable({}, _players)
 
     function self:search()
-        print("Searching for players")
+        API:validate()
     end
 
     return self
