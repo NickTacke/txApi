@@ -45,7 +45,6 @@ function _api:login(hostname, username, password)
             if headers and headers["Set-Cookie"] then
                 self.session = headers["Set-Cookie"]
                 print("^2Session cookie extracted!^7")
-                print(self.session)
             else
                 print("^1Failed to extract session cookie!^7")
             end
@@ -64,7 +63,6 @@ function _api:login(hostname, username, password)
             if data and data.csrfToken then
                 self.csrfToken = data.csrfToken
                 print("^2CSRF token extracted!^7")
-                print(data.csrfToken)
             else
                 print("^1Failed to extract CSRF token!^7")
             end
@@ -100,13 +98,6 @@ function _api:request(method, path, body, callback)
         return
     end
 
-    print("^2Requesting to endpoint!^7")
-    -- Show data
-    print(self.hostname .. path)
-    print(method)
-    print(body)
-    print(self.standardHeaders)
-
     -- Do the request to the endpoint
     PerformHttpRequest(
         self.hostname .. path,
@@ -114,7 +105,7 @@ function _api:request(method, path, body, callback)
             -- Check if the request was successful
             if statusCode ~= 200 then
                 print("^1Endpoint didn't return 200!^7", statusCode)
-                print(response)
+                print("^1Response:^7", response)
                 return
             end
 
