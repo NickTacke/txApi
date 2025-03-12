@@ -110,26 +110,26 @@ end)
 ### Main Module
 
 - `exports.txApi:new(hostname, username, password)` - Creates a new txApi instance
-- `txAdminApi.isReady()` - Returns true when authenticated and ready to use
+- `api:isReady()` - Returns true when authenticated and ready to use
 
 ### Players Module
 
-- `txAdminApi.players:search(options, callback)` - Search player data
+- `api.players:search(options, callback)` - Search player data
   - options:
     - `sortingKey` - Field to sort by (default: "tsJoined")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
-- `txAdminApi.players:message(license, message, callback)` - Send an ingame direct message
-- `txAdminApi.players:kick(license, reason, callback)` - Kick the player using txAdmin
-- `txAdminApi.players:warn(license, reason, callback)` - Warn the player using txAdmin
+- `api.players:message(license, message, callback)` - Send an ingame direct message
+- `api.players:kick(license, reason, callback)` - Kick the player using txAdmin
+- `api.players:warn(license, reason, callback)` - Warn the player using txAdmin
 
 ### Actions Module
 
-- `txAdminApi.actions:search(options, callback)` - Search actions (warns/bans)
+- `api.actions:search(options, callback)` - Search actions (warns/bans)
   - options:
     - `sortingKey` - Field to sort by (default: "timestamp")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
-- `txAdminApi.actions:stats(callback)` - Get statistics for warns/bans
-- `txAdminApi.actions:revoke(actionId, callback)` - Get statistics for warns/bans
+- `api.actions:stats(callback)` - Get statistics for warns/bans
+- `api.actions:revoke(actionId, callback)` - Get statistics for warns/bans
   - actionId: string id for the action id (example: BG5N-STDV)
 
 ## Security Note
