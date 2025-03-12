@@ -1,4 +1,5 @@
 # txApi
+### **DISCLAIMER: This is not made by txAdmin! It's fully made, and maintained by a third party**
 
 A FiveM resource that provides Lua access to txAdmin web-endpoints, allowing you to interact with player data and admin actions through your server scripts.
 
