@@ -64,11 +64,31 @@ function _api.new(hostname, username, password)
             else
                 print("^1[txApi]^7 Failed to extract CSRF token!")
             end
+
+            -- Set standard headers for future api calls
+            self.standardHeaders = {
+                ["Cookie"] = self.session,
+                ["X-TxAdmin-CsrfToken"] = self.csrfToken,
+                ["Content-Type"] = "application/json"
+            }
         end,
         "POST",
         loginData,
         {} -- Empty headers, might add content-type to check for success
     )
-
     return self
+end
+
+function _api:validate()
+    local sessionValid = self.session and self.session ~= nil
+    local csrfValid = self.csrfToken and self.csrfToken ~= nil
+    local standardHeadersValid = self.standardHeaders and self.standardHeaders ~= nil
+
+    -- TODO: check with endpoint call, maybe retrieve stats
+
+    return sessionValid and csrfValid and standardHeadersValid
+end
+
+function _api:GET()
+    
 end
