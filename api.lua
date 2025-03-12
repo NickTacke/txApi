@@ -25,7 +25,50 @@ function _api.new(hostname, username, password)
         password = password
     })
     
-    
-    
+    -- Send the login request to the auth endpoint
+    PerformHttpRequest(
+        hostname .. "/auth/login",
+        function(statusCode, response, headers)
+            -- Nicely coloured output :)
+            print("^2[txApi]^7 Attempting to authenticate to txAdmin!")
+
+            -- Check if the request was successful
+            if statusCode == 200 then
+                print("^2[txApi]^7 Successfully authenticated to txAdmin!")
+            else
+                print("^1[txApi]^7 Failed to authenticate to txAdmin!")
+            end
+
+            -- Extract the session cookie
+            if headers and headers["Set-Cookie"] then
+                self.session = headers["Set-Cookie"]
+                print("^2[txApi]^7 Session cookie extracted!")
+            else
+                print("^1[txApi]^7 Failed to extract session cookie!")
+            end
+
+            -- Check response data
+            if not response or response == "" then
+                print("^1[txApi]^7 Invalid response received when authenticating!")
+                return
+            end
+            
+            -- And attempt to decode the json response
+            local success, data = pcall(json.decode, response)
+            if not success then print("^1[txApi]^7 Failed to decode json response!") return end
+
+            -- Extract the CSRF token from the json response
+            if data and data.csrfToken then
+                self.csrfToken = data.csrfToken
+                print("^2[txApi]^7 CSRF token extracted!")
+            else
+                print("^1[txApi]^7 Failed to extract CSRF token!")
+            end
+        end,
+        "POST",
+        loginData,
+        {} -- Empty headers, might add content-type to check for success
+    )
+
     return self
 end
