@@ -75,17 +75,19 @@ end)
 ### Players Module
 
 - `txAdminApi.players:search(options, callback)` - Search player data
-  - Options:
+  - options:
     - `sortingKey` - Field to sort by (default: "tsJoined")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
 
 ### Actions Module
 
 - `txAdminApi.actions:search(options, callback)` - Search actions (warns/bans)
-  - Options:
+  - options:
     - `sortingKey` - Field to sort by (default: "timestamp")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
 - `txAdminApi.actions:stats(callback)` - Get statistics for warns/bans
+- `txAdminApi.actions:revoke(actionId, callback)` - Get statistics for warns/bans
+  - actionId: string id for the action id (example: BG5N-STDV)
 
 ## Security Note
 
