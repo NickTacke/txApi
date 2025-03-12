@@ -34,5 +34,20 @@ function _actions.new()
         )
     end
 
+    function self:stats(callback)
+        API:request(
+            "GET",
+            "/history/stats",
+            {},
+            function(data)
+                if not callback then
+                    print("^1No callback provided for actions stats!^7")
+                    return
+                end
+                callback(data)
+            end
+        )
+    end
+
     return self
 end
