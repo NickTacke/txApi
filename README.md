@@ -38,9 +38,8 @@ CreateThread(function()
     print("txAdmin API is ready to use!")
     
     -- Your code using the API here
-    api.actions:search({}, function(data)
-        print(json.encode(data))
-    end)
+    local result = api.actions:search({})
+    print(json.encode(result, { indent = true }))
 end)
 ```
 
@@ -48,64 +47,57 @@ end)
 
 ```lua
 -- Get all players sorted by join time (newest first)
-api.players:search({
-    sortingKey = "tsJoined", -- Field to sort by
-    sortingDesc = "true"     -- Descending order
-}, function(data)
-    print(json.encode(data))
-end)
+local response = api.players:search({
+    sortingKey = "tsJoined",
+    sortingDesc = "true"
+})
+print(json.encode(response, { indent = true }))
 ```
 
 ### Sending Direct Message to Players
 
 ```lua
-api.players:message("74309af47c7f34f51d74631e717d5d72d9bd277a", "Hello!", function(response)
-    print(json.encode(response))
-end)
+local response = api.players:message("license:74309af47c7f34f51d74631e717d5d72d9bd277a", "Hello!")
+print(response.success and "Messaged player!" or response.error)
 ```
 
 ### Kicking Players
 
 ```lua
-api.players:kick("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!", function(response)
-    print(json.encode(response))
-end)
+local response = api.players:kick("license:74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!")
+print(response.success and "Kicked player!" or response.error)
 ```
 
 ### Warning Players
 
 ```lua
-api.players:warn("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!", function(response)
-    print(json.encode(response))
-end)
+local response = api.players:warn("license:74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!")
+print(response.success and "Warned player!" or response.error)
 ```
 
 ### Searching Ban/Warn Actions
 
 ```lua
 -- Get action history sorted by timestamp (newest first)
-api.actions:search({
-    sortingKey = "timestamp", -- Field to sort by
-    sortingDesc = "true"     -- Descending order
-}, function(data)
-    print(json.encode(data))
-end)
+local response = api.actions:search({
+    sortingKey = "timestamp",
+    sortingDesc = "true"
+})
+print(json.encode(response, { indent = true }))
 ```
 
 ### Getting Ban/Warn Statistics
 
 ```lua
-api.actions:stats(function(data)
-    print(json.encode(data))
-end)
+local response = api.actions:stats()
+print(json.encode(response, { indent = true }))
 ```
 
 ### Revoking a Ban/Warn
 
 ```lua
-api.actions:revoke("WEUE-LL51", function(response)
-    print(json.encode(response))
-end)
+local response = api.actions:revoke("WX7M-CVPD")
+print(response.success and "Action revoked!" or response.error)
 ```
 
 ## API Reference
@@ -118,28 +110,28 @@ end)
 
 ### Players Module
 
-- `api.players:search(options, callback)` - Search player data
+- `api.players:search(options)` - Search player data
   - options:
     - `sortingKey` - Field to sort by (default: "tsJoined")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
     - `name` - Search for specific player(s) by name (default: nil)
     - `license` - Search for a specific player by license (default: nil)
     - `notes` - Search for specific player(s) by something in their notes (default: nil)
-- `api.players:message(license, message, callback)` - Send an ingame direct message
-- `api.players:kick(license, reason, callback)` - Kick the player using txAdmin
-- `api.players:warn(license, reason, callback)` - Warn the player using txAdmin
+- `api.players:message(license, message)` - Send an ingame direct message
+- `api.players:kick(license, reason)` - Kick the player using txAdmin
+- `api.players:warn(license, reason)` - Warn the player using txAdmin
 
 ### Actions Module
 
-- `api.actions:search(options, callback)` - Search actions (warns/bans)
+- `api.actions:search(options)` - Search actions (warns/bans)
   - options:
     - `sortingKey` - Field to sort by (default: "timestamp")
     - `sortingDesc` - "true" for descending, "false" for ascending (default: "true")
     - `actionId` - Search for a specific action by actionId (default: nil)
     - `reason` - Search for specific action(s) by reason (default: nil)
     - `identifier` - Search for actions of a specific player with identifier (default: nil)
-- `api.actions:stats(callback)` - Get statistics for warns/bans
-- `api.actions:revoke(actionId, callback)` - Get statistics for warns/bans
+- `api.actions:stats()` - Get statistics for warns/bans
+- `api.actions:revoke(actionId)` - Get statistics for warns/bans
   - actionId: string id for the action id (example: BG5N-STDV)
 
 ## Security Note
