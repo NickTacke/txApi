@@ -119,13 +119,13 @@ function _api:request(method, path, body)
         function(statusCode, responseData, responseHeaders, statusText)
             -- Since the standard headers normally contain json content type
             -- We can assume that the response is json and decode it
-            local success, data = pcall(json.decode, response)
+            local success, data = pcall(json.decode, responseData)
             if not success then print("^1Failed to decode json response!^7") return end
 
             -- Response object to pass to promise
             local response = {
                 statusCode = statusCode,
-                data = responseData,
+                data = data,
                 headers = responseHeaders,
                 errorText = statusText,
                 ok = statusCode >= 200 and statusCode < 300

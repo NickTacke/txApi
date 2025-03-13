@@ -43,12 +43,12 @@ function _actions.new()
         local queryString = table.concat(queryParams, "&")
 
         -- Let txAdmin search for the actions and return the response
-        return API:request("GET", "/history/search?" .. queryString, {})
+        return API:request("GET", "/history/search?" .. queryString, {}).data
     end
 
     function self:stats()
         -- Request txAdmin to return the stats
-        return API:request("GET", "/history/stats", {})
+        return API:request("GET", "/history/stats", {}).data
     end
 
     function self:revoke(actionId)
@@ -59,7 +59,7 @@ function _actions.new()
         end
 
         -- Request txAdmin to revoke the action
-        return API:request("POST", "/history/revokeAction", { actionId = actionId })
+        return API:request("POST", "/history/revokeAction", { actionId = actionId }).data
     end
 
     return self

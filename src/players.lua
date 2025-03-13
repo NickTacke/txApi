@@ -36,7 +36,7 @@ function _players.new()
         local queryString = table.concat(queryParams, "&")
 
         -- Let txAdmin search for the players and return the response
-        return API:request("GET", "/player/search?" .. queryString, {})
+        return API:request("GET", "/player/search?" .. queryString, {}).data
     end
 
     function self:action(action, license, body)
@@ -52,7 +52,7 @@ function _players.new()
         end
 
         -- Ask txAdmin to perform the action
-        return API:request("POST", "/player/" .. action .. "?license=".. license, body)
+        return API:request("POST", "/player/" .. action .. "?license=".. license, body).data
     end
 
     -- TODO: Research if possible with netId (mutex?)
