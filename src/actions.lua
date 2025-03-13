@@ -5,14 +5,8 @@ _actions.__index = _actions
 function _actions.new()
     local self = setmetatable({}, _actions)
 
-    function self:search(options, callback)
+    function self:search(options)
         options = options or {}
-
-        -- Make sure arguments are provided
-        if not callback then
-            print("^1No callback provided for actions search!^7")
-            return
-        end
         
         -- Create the query params
         local queryParams = {
@@ -25,72 +19,47 @@ function _actions.new()
         -- Ability to search by action id
         if options.actionId then
             table.insert(queryParams, "searchType=actionId")
-            table.insert(queryParams, "searchValue=" .. options.actionId)
+            table.insert(queryParams, "searchValue=" .. options.actionId) -- action id, example: W2V7-D8Y6
         end
 
         -- Ability to search by ban/warn reason
         if options.reason then
             table.insert(queryParams, "searchType=reason")
-            table.insert(queryParams, "searchValue=" .. options.reason)
+            table.insert(queryParams, "searchValue=" .. options.reason) -- any reason
         end
 
         -- Ability to search by player identifier
         if options.identifier then
             table.insert(queryParams, "searchType=identifiers")
-            table.insert(queryParams, "searchValue=" .. options.identifier)
+            table.insert(queryParams, "searchValue=" .. options.identifier) -- any identifier
+        end
+
+        -- Filter by ban/warn
+        if options.filter then
+            table.insert(queryParams, "filterbyType=" .. options.filter) -- ban/warn
         end
 
         -- Convert the query params to a single string
         local queryString = table.concat(queryParams, "&")
 
-        API:request(
-            "GET",
-            "/history/search?" .. queryString,
-            {},
-            function(data)
-                callback(data)
-            end
-        )
+        -- Let txAdmin search for the actions and return the response
+        return API:request("GET", "/history/search?" .. queryString, {})
     end
 
-    function self:stats(callback)
-        -- Make sure arguments are provided
-        if not callback then
-            print("^1No callback provided for actions stats!^7")
-            return
-        end
-
-        API:request(
-            "GET",
-            "/history/stats",
-            {},
-            function(data)
-                callback(data)
-            end
-        )
+    function self:stats()
+        -- Request txAdmin to return the stats
+        return API:request("GET", "/history/stats", {})
     end
 
-    function self:revoke(actionId, callback)
+    function self:revoke(actionId)
         -- Make sure arguments are provided
         if not actionId then
             print("^1No actionId provided for action revoke!^7")
             return
         end
 
-        if not callback then
-            print("^1No callback provided for action revoke!^7")
-            return
-        end
-
         -- Request txAdmin to revoke the action
-        API:request(
-            "POST",
-            "/history/revokeAction",
-            { actionId = actionId },
-            function(data)
-                callback(data)
-            end
-        )
+        return API:request("POST", "/history/revokeAction", { actionId = actionId })
     end
 
     return self

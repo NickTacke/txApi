@@ -8,9 +8,10 @@ function _api.new()
 end
 
 function _api:login(hostname, username, password)
-    -- Check if the url to txAdmin is provided
-    if not hostname then
-        error("txAdmin hostname is required!")
+    -- Check if the login details were provided
+    if not hostname or not username or not password then
+        print("^1No login details provided for txAdmin!^7")
+        return
     end
 
     -- Remove trailing / from hostname
@@ -28,6 +29,7 @@ function _api:login(hostname, username, password)
         password = password
     })
     
+    local promise = promise.new()
     -- Send the login request to the auth endpoint
     PerformHttpRequest(
         hostname .. "/auth/password",
@@ -73,11 +75,19 @@ function _api:login(hostname, username, password)
                 ["X-TxAdmin-CsrfToken"] = self.csrfToken,
                 ["Content-Type"] = "application/json"
             }
+
+            -- Resolve the promise
+            promise:resolve({
+                session = self.session,
+                csrfToken = self.csrfToken,
+                standardHeaders = self.standardHeaders
+            })
         end,
         "POST",
         loginData,
         { ["Content-Type"] = "application/json" }
     )
+    return Citizen.Await(promise)
 end
 
 function _api:validate()
@@ -90,7 +100,7 @@ function _api:validate()
     return sessionValid and csrfValid and standardHeadersValid
 end
 
-function _api:request(method, path, body, callback)
+function _api:request(method, path, body)
     -- Check if the api class was created successfuly
     if not self:validate() then
         print("^1Failed to validate connection to txAdmin!^7")
@@ -102,30 +112,33 @@ function _api:request(method, path, body, callback)
     -- print("^2Method: ^7", method)
     -- print("^2Body: ^7", json.encode(body))
 
+    local promise = promise.new()
     -- Do the request to the endpoint
     PerformHttpRequest(
         self.hostname .. path,
-        function(statusCode, response, headers)
-            -- Check if the request was successful
-            if statusCode ~= 200 then
-                print("^1Endpoint didn't return 200!^7", statusCode)
-                print("^1Response:^7", response)
-            end
-
+        function(statusCode, responseData, responseHeaders, statusText)
             -- Since the standard headers normally contain json content type
             -- We can assume that the response is json and decode it
             local success, data = pcall(json.decode, response)
             if not success then print("^1Failed to decode json response!^7") return end
 
-            -- Give the response back to the caller
-            if callback then
-                callback(data)
-            end
+            -- Response object to pass to promise
+            local response = {
+                statusCode = statusCode,
+                data = responseData,
+                headers = responseHeaders,
+                errorText = statusText,
+                ok = statusCode >= 200 and statusCode < 300
+            }
+
+            -- Resolve the promise with the response object
+            promise:resolve(response)
         end,
         method,
         json.encode(body),
         self.standardHeaders
     )
+    return Citizen.Await(promise)
 end
 
 -- Instance of api to use in this resource
