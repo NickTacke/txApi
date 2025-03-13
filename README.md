@@ -57,21 +57,21 @@ print(json.encode(response, { indent = true }))
 ### Sending Direct Message to Players
 
 ```lua
-local response = api.players:message("license:74309af47c7f34f51d74631e717d5d72d9bd277a", "Hello!")
+local response = api.players:message("74309af47c7f34f51d74631e717d5d72d9bd277a", "Hello!")
 print(response.success and "Messaged player!" or response.error)
 ```
 
 ### Kicking Players
 
 ```lua
-local response = api.players:kick("license:74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!")
+local response = api.players:kick("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!")
 print(response.success and "Kicked player!" or response.error)
 ```
 
 ### Warning Players
 
 ```lua
-local response = api.players:warn("license:74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!")
+local response = api.players:warn("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!")
 print(response.success and "Warned player!" or response.error)
 ```
 
