@@ -14,5 +14,6 @@ server_scripts {
     'src/api.lua',
     'src/actions.lua',
     'src/players.lua',
+    'src/server.lua',
     'main.lua'
 }

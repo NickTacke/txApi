@@ -12,6 +12,7 @@ function _txApi.new(hostname, username, password)
     -- Initialise sub-components
     self.actions = _actions:new()
     self.players = _players:new()
+    self.server = _server:new()
 
     return self
 end
