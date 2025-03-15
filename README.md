@@ -134,6 +134,11 @@ print(response.success and "Action revoked!" or response.error)
 - `api.actions:revoke(actionId)` - Get statistics for warns/bans
   - actionId: string id for the action id (example: BG5N-STDV)
 
+### Server Module
+
+- `api.server:restart()` - Restart the server
+- `api.server:stop()` - Stop the server
+
 ## Security Note
 
 This resource provides direct access to txAdmin functions. Use with caution and ensure:
