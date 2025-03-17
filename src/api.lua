@@ -107,6 +107,23 @@ function _api:request(method, path, body)
         return
     end
 
+    -- Check if the invoking resource is on the whitelist
+    local invoker = GetInvokingResource()
+    local whitelisted = false
+    
+    for _, v in ipairs(Config.Whitelist) do
+        if v == invoker then
+            whitelisted = true
+            break
+        end
+    end
+
+    -- If the invoking resource is not whitelisted, return an error
+    if not whitelisted then
+        print("^1Resource not whitelisted!^7", invoker)
+        return
+    end
+
     -- Print debug information
     -- print("^2Requesting endpoint: ^7", path)
     -- print("^2Method: ^7", method)
