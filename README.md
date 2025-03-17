@@ -21,6 +21,7 @@ txApi creates a simple wrapper around txAdmin's web API endpoints, letting you p
 3. Configure your scripts to use the txApi exports
 4. Make sure to remove .example from the config in the settings folder
 5. Change your account details in the config.lua file
+6. Fill in the resource whitelist
 
 ## Usage
 
@@ -98,6 +99,12 @@ print(json.encode(response, { indent = true }))
 ```lua
 local response = api.actions:revoke("WX7M-CVPD")
 print(response.success and "Action revoked!" or response.error)
+```
+
+### Restarting the server
+
+```lua
+api.server:restart()
 ```
 
 ## API Reference
