@@ -76,6 +76,14 @@ local response = api.players:warn("74309af47c7f34f51d74631e717d5d72d9bd277a", "B
 print(response.success and "Warned player!" or response.error)
 ```
 
+### Banning Players
+
+```lua
+-- durations:  ['permanent', '2 hours', '8 hours', '1 day', '2 days', '1 week', '2 weeks']
+local response = api.players:ban("74309af47c7f34f51d74631e717d5d72d9bd277a", "Breaking rules!", "1 week")
+print(response.success and "Banned player!" or response.error)
+```
+
 ### Searching Ban/Warn Actions
 
 ```lua
