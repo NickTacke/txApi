@@ -70,7 +70,7 @@ function _players.new()
 
     -- TODO: test/research
     function self:ban(license, reason, duration)
-        return self:action("ban", license, { reason = reason or "No reason provided", duration = duration or 0 })
+        return self:action("ban", license, { reason = reason or "No reason provided", duration = duration or "permanent" })
     end
 
     return self
