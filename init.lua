@@ -1,9 +1,8 @@
 if _ENV.txApi then return _ENV.txApi end
 local resourceName = GetCurrentResourceName()
-local txExports = exports['txApi']
 
 local txApi = {}
-txApi.version = "1.5.3"
+txApi.version = "2.0.3"
 
 -- Load the module loader
 local loaderFile = LoadResourceFile('txApi', "core/loader.lua")
@@ -49,7 +48,7 @@ CreateThread(function()
         Wait(100)
     end
     -- Check if not already authenticated
-    if txApi.getAuthState().isAuthenticated then return end
+    if txApi.isAuthenticated() then return end
     -- Check if config is loaded
     local cfg = txApi.getConfig()
     if not cfg then return end
