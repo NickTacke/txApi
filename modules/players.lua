@@ -13,7 +13,7 @@ txApi.players = {}
 function txApi.players.search(options)
     txApi.log('debug', 'Searching for players with options: ' .. json.encode(options))
     options = options or {}
-    
+
     -- Set the default query params
     local queryParams = {
         "sortingKey=" .. (options.sortingKey or 'tsJoined'),
