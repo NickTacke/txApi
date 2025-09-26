@@ -102,19 +102,19 @@ txApi.actions.search({ identifier = 'license:1234', sortingKey = 'playerName', s
 
 -- Snapshot the current totals
 local totals = txApi.actions.stats()
-print(('Warns: %s, Bans: %s'):format(totals.warnCount, totals.banCount))
+print(('Warns: %s, Bans: %s'):format(totals.totalWarns, totals.totalBans))
 
 -- Compare against a previous run
 local current = txApi.actions.stats()
-if previousStats and current.banCount > previousStats.banCount then
+if previousStats and current.totalBans > previousStats.totalBans then
     txApi.log('warn', 'New bans detected since last check')
 end
 
 -- Revoke a known action id
-txApi.actions.revoke('action-id-123')
+txApi.actions.revoke('WACS-12GF')
 
 -- Revoke the first result from a search
-local results = txApi.actions.search({ actionId = 'action-id-987' })
+local results = txApi.actions.search({ identifier = 'license:1234' })
 if results[1] then
     txApi.actions.revoke(results[1].actionId)
 end
@@ -162,16 +162,16 @@ end
 
 ```lua
 -- Find players whose name starts with "Riley"
-txApi.players.search({ name = 'Riley', sortingKey = 'playTime' })
+txApi.players.search({ name = 'Riley', sortingKey = 'tsLastConnection' })
 
 -- Continue pagination using an offset license
-txApi.players.search({ sortingKey = 'tsJoined', offsetLicense = 'license:abcdef1234567890' })
+txApi.players.search({ sortingKey = 'playTime' })
 
 -- Send a custom message payload to a net ID
 txApi.players.action('message', 12, { message = 'Event starting soon!' })
 
 -- Issue a temporary ban using a license identifier
-txApi.players.action('ban', 'license:abc123', { reason = 'Exploits', duration = '6h' })
+txApi.players.action('ban', 'license:abc123', { reason = 'Exploits', duration = '2 weeks' })
 
 -- Notify a connected player by net ID
 txApi.players.message(21, 'Server restart in 10 minutes!')
@@ -192,7 +192,7 @@ txApi.players.kick(7, 'AFK farming is prohibited')
 txApi.players.kick('license:abcdef1234', 'Cheating detected')
 
 -- Temporary ban with explicit duration
-txApi.players.ban(19, 'Repeat RDM', '12h')
+txApi.players.ban(19, 'Repeat RDM', '12 hours')
 
 -- Permanent ban using license identifier
 txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'permanent')
