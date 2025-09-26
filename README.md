@@ -22,7 +22,7 @@ A less sketchy FiveM server resource that authenticates with txAdmin, exposes he
 | `Config.Hostname` | string | Base URL for txAdmin | Example: `http://127.0.0.1:40120` |
 | `Config.Username` / `Config.Password` | string | txAdmin credentials for API login | Use a service account; keep secrets out of git |
 | `Config.Whitelist` | string[] | Resource names allowed to call `txApi` exports | Requests from others return `403` |
-| `Config.LogLevel` | `error` · `warn` · `info` · `debug` · `trace` | Minimum log verbosity | Default `info` |
+| `Config.LogLevel` | `LogLevel` alias (`error` · `warn` · `info` · `debug` · `trace`) | Minimum log verbosity | Default `info` |
 
 ## Runtime Overview
 
@@ -53,9 +53,7 @@ txApi.server.restart()
 
 | Function | Returns | Notes |
 | --- | --- | --- |
-| `txApi.getConfig()` | table | Returns the resolved `Config` table |
-| `txApi.authenticate(host, user, pass)` | boolean | Stores session cookie + CSRF token on success |
-| `txApi.getAuthState()` | `AuthState` | `{ configured, isAuthenticated, hostname, username, password, sessionCookie, csrfToken }` |
+| `txApi.authenticate(host, user, pass)` | boolean | Stores session cookie + CSRF token on success, not necessary when credentials added to config.lua |
 | `txApi.isAuthenticated()` | boolean | Convenience flag |
 | `txApi.sendHTTPRequest(url, opts)` | `HTTPResponse` | Thin wrapper around `PerformHttpRequest` |
 | `txApi.txRequest(endpoint, opts)` | `HTTPResponse` | Authenticated request to `<hostname>/<endpoint>` using whitelist + headers |
