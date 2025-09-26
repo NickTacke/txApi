@@ -16,7 +16,8 @@ local logColors = {
     trace = '^6',
 }
 
----@param logLevel "error" | "warn" | "info" | "debug" | "trace"
+---@alias LogLevel "error" | "warn" | "info" | "debug" | "trace"
+---@param logLevel LogLevel
 ---@param ... any
 function txApi.log(logLevel, ...)
     if not logLevels[logLevel] then
