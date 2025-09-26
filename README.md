@@ -1,142 +1,228 @@
 # txApi
 
-FiveM server-side resource that wraps the txAdmin HTTP API, exposing helper methods for authentication, player management, action history, and server controls. The resource bootstraps itself, handles token storage, and re-exports convenience functions so other whitelisted resources can interact with txAdmin safely.
+A less sketchy FiveM server resource that, authenticates with txAdmin, exposes helper methods for actions, players, and server controls and soon actions like noclip/repair/heal through imported functions.
 
-## Contents
+## Quick Start
 
-- Overview
-- Requirements
-- Installation
-- Configuration
-- Runtime Behaviour
-- Public API Reference
-- Logging
-- Development Notes
+1. Drop the folder into your server resources, e.g. `resources/[local]/txApi`.
+2. Add `ensure txApi` to `server.cfg`.
+3. Edit `settings/config.lua`:
+   - `Hostname`: Base URL for txAdmin.
+   - `Username` / `Password`: Credentials used for API login (txAdmin account).
+   - `Whitelist`: Resource names allowed to use `txApi` functions.
+   - `LogLevel`: One of `error`, `warn`, `info`, `debug`, `trace`.
+4. Avoid committing real credentials—use secrets management instead.
 
-## Overview
+On start, `txApi` lazy-loads modules, attempts authentication when credentials exist, and keeps session cookie + CSRF token in a shared state.
 
-`txApi` loads core helpers on resource start, attempts authentication when credentials are present, and exposes the resulting API through both the Lua environment and FiveM exports. Consumers gain access to:
-
-- HTTP helpers that include authentication cookies and CSRF headers.
-- High-level wrappers for txAdmin history (`actions`) and player endpoints (`players`).
-- Server management helpers (`server`).
-- Centralised logging with adjustable verbosity.
-
-The resource version is tracked in `init.lua` and `fxmanifest.lua` (`1.5.3` at the time of writing).
-
-## Requirements
-
-- FiveM server running the Cerulean build (Lua 5.4 enabled).
-- txAdmin configured and reachable from the FiveM host (`Config.Hostname`).
-- Valid txAdmin credentials with the required permissions for the actions you intend to call.
-
-## Installation
-
-1. Copy this resource folder into your FiveM server resource directory (e.g. `resources/[local]/txApi`).
-2. Ensure the resource in your server configuration:
-   ```
-   ensure txApi
-   ```
-3. If other resources need to call `txApi`, add them to `Config.Whitelist`.
-
-## Configuration
-
-Edit `settings/config.lua` to match your environment:
-
-- `Config.Hostname`: Base URL for your txAdmin instance (e.g. `http://127.0.0.1:40120`).
-- `Config.Username` / `Config.Password`: txAdmin credentials used for API authentication.
-- `Config.Whitelist`: Array of resource names allowed to call exported API functions via `txApi.txRequest`.
-- `Config.LogLevel`: Minimum log level to display (`error`, `warn`, `info`, `debug`, `trace`).
-
-> **Security Tip:** Do not commit real credentials. Use server-specific secrets management when possible.
-
-## Runtime Behaviour
-
-- `init.lua` loads `core/loader.lua`, which sets up a lazy module loader (`load_module`) bound to the `txApi` metatable. Modules under `modules/` are fetched on first access.
-- Once core modules are loaded, a background thread waits for critical functions (`getConfig`, `authenticate`, `sendHTTPRequest`, `getAuthState`) to exist and automatically authenticates if credentials are configured.
-- `core/main.lua` seeds the exported `txApi` table, providing shared state (`Config`) and controlling how new functions are exported.
-- `core/http/auth.lua` maintains authentication state: session cookie, CSRF token, and status flags. Successful authentication updates this state and enables `txApi.txRequest`.
-- Requests from non-whitelisted resources, or before authentication succeeds, return standardised error responses.
-
-## Public API Reference
-
-Unless noted otherwise, functions return decoded tables on success or an empty table / error response structure on failure. All functions live on the `txApi` table, which can be accessed via Lua requires or FiveM exports.
-
-### Initialisation Helpers
-
-- `txApi.getConfig()` → `table`: Returns the resolved `Config` table.
-- `txApi.authenticate(hostname, username, password)` → `boolean`: Authenticates against txAdmin; stores cookies and CSRF token internally.
-- `txApi.getAuthState()` → `AuthState`: Returns the current authentication state (configured, isAuthenticated, hostname, credentials, tokens).
-- `txApi.isAuthenticated()` → `boolean`: Convenience flag.
-
-### HTTP Utilities
-
-- `txApi.sendHTTPRequest(url, options)` → `HTTPResponse`: Thin wrapper around `PerformHttpRequest`. `options` supports `method`, `body`, and `headers`. Returns `{ status, ok, data, errorText, headers }`.
-- `txApi.txRequest(endpoint, options)` → `HTTPResponse`: Applies whitelist checks, injects session cookie and CSRF headers, JSON-encodes the body when present, and calls `sendHTTPRequest` using the configured hostname.
-
-### Logging
-
-- `txApi.log(level, ...)`: Logs messages when `Config.LogLevel` is at least `level` (colour-coded output).
-
-### Module: `txApi.actions`
-
-- `txApi.actions.search(options)` → `table`: Queries `history/search` with sorting and search filters. Only one search type (`actionId`, `reason`, `identifier`) is allowed per call.
-- `txApi.actions.stats()` → `table`: Fetches aggregated history stats from `history/stats`.
-- `txApi.actions.revoke(actionId)` → `table`: Revokes an action via `history/revokeAction`.
-
-All responses are JSON-decoded. Failures log an error and return `{}`.
-
-### Module: `txApi.players`
-
-- `txApi.players.search(options)` → `table`: Searches players via `player/search`. Supports name, identifier, or notes filters, sorting options, and pagination using `offsetLicense`.
-- `txApi.players.action(action, playerId, body)` → `table`: Low-level helper that submits a POST to `player/<action>` (message, warn, kick, ban). Handles net ID vs license formats automatically.
-- `txApi.players.message(playerId, message)` → `table`: Sends a message to a connected player.
-- `txApi.players.warn(playerId, reason)` → `table`: Issues a warning.
-- `txApi.players.kick(playerId, reason)` → `table`: Kicks a player.
-- `txApi.players.ban(playerId, reason, duration)` → `table`: Bans a player (defaults to permanent duration).
-
-Each helper logs intent and returns decoded JSON or `{}` on failure.
-
-### Module: `txApi.server`
-
-- `txApi.server.restart()` → `HTTPResponse`: Sends a restart command to `fxserver/controls`.
-- `txApi.server.stop()` → `HTTPResponse`: Sends a stop command to `fxserver/controls`.
-
-Both methods log with level `warn` before dispatching the request.
-
-## Usage Examples
+## Using the API
 
 ```lua
-local txApi = exports['txApi']
+-- fxmanifest.lua
+server_scripts {
+    '@txApi/init.lua'
+}
+```
 
--- Authenticate manually (optional when credentials are in Config)
-local ok = txApi.authenticate('http://127.0.0.1:40120', 'api-user', 'strong-pass')
-if not ok then
-    txApi.log('error', 'Authentication failed')
-    return
+```lua
+-- server.lua
+while not txApi.isAuthenticated() do
+    Citizen.Wait(1000)
 end
 
--- Fetch recent actions
-local actions = txApi.actions.search({ sortingKey = 'timestamp', sortingDesc = 'true' })
-
--- Message a player by net ID
+-- Most functions are usable by netId and license
 txApi.players.message(12, 'Server restart in 5 minutes')
 
--- Kick a player using license identifier
-txApi.players.kick('license:1234567890abcdef', 'Cheating detected')
+-- You can revoke warns / bans by their action id "WACF-2SF1"
+txApi.actions.revoke('action-id')
 
--- Restart the server
+-- In rare cases, can be used to stop or restart the server itself
 txApi.server.restart()
 ```
 
-## Logging
+Key helpers (all return decoded JSON tables when possible):
 
-`txApi.log` outputs coloured messages in the server console. Adjust `Config.LogLevel` to control verbosity. All modules reuse this helper for consistent messaging.
+- `isAuthenticated()` – inspect auth status.
+- `sendHTTPRequest(url, opts)` – raw HTTP wrapper returning `{ status, ok, data, errorText, headers }`.
+  - `opts.method`: one of `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`, `HEAD` (defaults to `GET`).
+  - `opts.body`: string/any payload (pass table for JSON).
+  - `opts.headers`: table of header key/value pairs.
+- `txRequest(endpoint, opts)` – authenticated request to `<hostname>/<endpoint>` with whitelist + JSON handling.
+  - Inherits `opts` from `sendHTTPRequest`; JSON-encodes `opts.body` automatically.
+  - Adds `Cookie` and `X-TxAdmin-CsrfToken` headers from the auth state and enforces whitelist.
+- `log(level, ...)` – colourised console logging.
 
-## Development Notes
+Modules:
 
-- Modules under `modules/` should return a table that is assigned to `txApi.<moduleName>` by the loader. When adding new modules, follow the existing pattern to keep lazy-loading intact.
-- To add additional txAdmin endpoints, implement new helpers in `modules/` and ensure they rely on `txApi.txRequest` for authentication and whitelisting.
-- If you modify authentication logic, keep `AuthState` in sync to avoid stale cookies or CSRF tokens.
+<details>
+  <summary><code>txApi.actions</code></summary>
 
+  - `actions.search(opts)` – query history by timestamp, reason, action ID, or identifier.
 
+  **`ActionSearchOptions` fields**
+  - `sortingKey`: `timestamp` | `playerName` | `playerLicense` | `playerNetId` (default `timestamp`).
+  - `sortingDesc`: `true` | `false` (default `true`).
+  - `actionId`: string action identifier (`searchType=actionId`).
+  - `reason`: string reason filter (`searchType=reason`).
+  - `identifier`: string license/identifier (`searchType=identifiers`).
+  - `filter`: `warn` | `ban` (`filterbyType`).
+
+```lua
+-- Most recent bans (descending)
+txApi.actions.search({ filter = 'ban' })
+
+-- Search using a specific player identifier and sort by name
+txApi.actions.search({ identifier = 'license:1234', sortingKey = 'playerName', sortingDesc = 'false' })
+```
+
+  - `actions.stats()` – fetch aggregated history stats.
+
+```lua
+-- Snapshot the current totals
+local totals = txApi.actions.stats()
+print(('Warns: %s, Bans: %s'):format(totals.warnCount, totals.banCount))
+
+-- Compare against a previous run
+local current = txApi.actions.stats()
+if previousStats and current.banCount > previousStats.banCount then
+    txApi.log('warn', 'New bans detected since last check')
+end
+```
+
+  - `actions.revoke(actionId)` – revoke a recorded action.
+
+```lua
+-- Revoke a known action id
+txApi.actions.revoke('action-id-123')
+
+-- Revoke the first result from a search
+local results = txApi.actions.search({ actionId = 'action-id-987' })
+if results[1] then
+    txApi.actions.revoke(results[1].actionId)
+end
+```
+</details>
+
+<details>
+  <summary><code>txApi.players</code></summary>
+
+  - `players.search(opts)` – look up players by name, identifier, or notes.
+
+  **`PlayerSearchOptions` fields**
+  - `name`: player name substring (`searchType=playerName`).
+  - `identifier`: license/identifier string (`searchType=playerIds`).
+  - `notes`: note substring (`searchType=playerNotes`).
+  - `sortingKey`: `playTime` | `tsJoined` | `tsLastConnection` (default `tsJoined`).
+  - `sortingDesc`: `true` | `false` (default `true`).
+  - `offsetLicense`: resume pagination using a license value.
+
+```lua
+-- Find players whose name starts with "Riley"
+txApi.players.search({ name = 'Riley', sortingKey = 'playTime' })
+
+-- Continue pagination using an offset license
+txApi.players.search({ sortingKey = 'tsJoined', offsetLicense = 'license:abcdef1234567890' })
+```
+
+  - `players.action(action, playerId, body)` – low-level helper powering the wrappers.
+
+  **Parameters**
+  - `action`: `message` | `warn` | `kick` | `ban`.
+  - `playerId`: server net ID or identifier string (`license:...`). Colon-prefixed identifiers are normalised automatically.
+  - `body`: request payload table; wrapper helpers populate defaults.
+
+```lua
+-- Send a custom message payload to a net ID
+txApi.players.action('message', 12, { message = 'Event starting soon!' })
+
+-- Issue a temporary ban using a license identifier
+txApi.players.action('ban', 'license:abc123', { reason = 'Exploits', duration = '6h' })
+```
+
+  - `players.message(playerId, message)` – convenient wrapper for messages.
+
+```lua
+-- Notify a connected player by net ID
+txApi.players.message(21, 'Server restart in 10 minutes!')
+
+-- DM an offline player by license so they see it next login
+txApi.players.message('license:9876abcd', 'Please check the rules channel when you return')
+```
+
+  - `players.warn(playerId, reason)` – issue warnings.
+
+```lua
+-- Warn a player for RDM via net ID
+txApi.players.warn(34, 'Random deathmatching is not allowed')
+
+-- Warn by license when the player reconnects
+txApi.players.warn('license:9876abcd', 'You were reported for harassment; final warning')
+```
+
+  - `players.kick(playerId, reason)` – disconnect players.
+
+```lua
+-- Kick a player immediately
+txApi.players.kick(7, 'AFK farming is prohibited')
+
+-- Kick by license after extracting from identifiers
+txApi.players.kick('license:abcdef1234', 'Cheating detected')
+```
+
+  - `players.ban(playerId, reason, duration)` – apply bans.
+
+  **Parameters**
+  - `playerId`: net ID or identifier string.
+  - `reason`: optional string (defaults to `No reason provided`).
+  - `duration`: string duration (e.g. `6h`, `3d`) or `permanent` (default).
+
+```lua
+-- Temporary ban with explicit duration
+txApi.players.ban(19, 'Repeat RDM', '12h')
+
+-- Permanent ban using license identifier
+txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'permanent')
+```
+</details>
+
+<details>
+  <summary><code>txApi.server</code></summary>
+
+  - `server.restart()` – issue an FXServer restart.
+
+```lua
+-- Immediate restart
+txApi.server.restart()
+
+-- Schedule a restart in five minutes
+Citizen.SetTimeout(5 * 60 * 1000, function()
+    txApi.server.restart()
+end)
+```
+
+  - `server.stop()` – shut down the FXServer instance.
+
+```lua
+-- Stop the server after all players leave
+if #GetPlayers() == 0 then
+    txApi.server.stop()
+end
+
+-- Stop as part of an emergency workflow
+txApi.players.message(-1, 'Server stopping due to maintenance')
+txApi.server.stop()
+```
+</details>
+
+Each helper logs at the appropriate level; failures return an empty table or `{ ok = false, status = <code>, errorText = <message> }`.
+
+## Support
+
+Feel free to tag me in the official txAdmin discord <@!527236638041047050>,
+or send a friend request to `arceas` and approach me in my DMs.
+
+## Extending
+
+- New modules belong in `modules/` and should return a table assigned to `txApi.<name>`.
+- Reuse `txApi.txRequest` for any txAdmin endpoints to inherit authentication and whitelist checks.
+- Keep `AuthState` fields in sync if you modify login or cookie behaviour.
