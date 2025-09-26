@@ -12,16 +12,9 @@ authState = {
 	configured = false,
 	isAuthenticated = false,
 	hostname = nil,
-	username = nil,
-	password = nil,
 	sessionCookie = nil,
 	csrfToken = nil,
 }
-
----@return AuthState
-function txApi.getAuthState()
-    return authState
-end
 
 ---@return boolean
 function txApi.isAuthenticated()
@@ -36,13 +29,11 @@ function txApi.authenticate(hostname, username, password)
     if not hostname or not username or not password then
         return false
     end
-    
+
     -- Set the authentication state
     authState.configured = true
     authState.hostname = hostname
-    authState.username = username
-    authState.password = password
-    
+
     -- Attempt to authenticate
     local response = exports['txApi'].sendHTTPRequest(nil, hostname .. '/auth/password', {
         method = 'POST',
@@ -88,7 +79,7 @@ function txApi.txRequest(endpoint, options)
     -- Check if resource is in the whitelist
     local cfg = txApi.getConfig()
     local isWhitelisted = false
-    
+
     -- Loop through the whitelist
     for _, resource in pairs(cfg.Whitelist) do
         if resource == GetInvokingResource() then
@@ -105,7 +96,7 @@ function txApi.txRequest(endpoint, options)
             errorText = "Resource not whitelisted"
         }
     end
-    
+
     -- Show the user that the resource is not authenticated (yet)
     if not authState.isAuthenticated then
         return {
@@ -132,7 +123,7 @@ function txApi.txRequest(endpoint, options)
     else
         options.body = ''
     end
-    
+
     -- Send the request to the endpoint
     return exports['txApi'].sendHTTPRequest(nil, ('%s/%s'):format(authState.hostname, endpoint), options)
 end
