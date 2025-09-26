@@ -51,7 +51,7 @@ function txApi.actions.search(options)
             errorText = 'Multiple search types are not allowed'
         }
     end
-    
+
     -- Convert the query params to a single string
     local queryString = table.concat(queryParams, '&')
 
