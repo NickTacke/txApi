@@ -1,15 +1,15 @@
--- config.lua
 Config = {}
 
 -- Authentication details
 Config.Hostname = "http://localhost:40120"
-Config.Username = "txAdmin" -- txAdmin user - username
-Config.Password = "txPassword" -- txAdmin user - password
+Config.Username = "txapi" -- txAdmin username
+Config.Password = "HeLmOnD4321!" -- txAdmin password
 
 -- Whitelisted resources
 Config.Whitelist = {
-    "txApiExample",
+    "hlrp-testing",
 }
 
 -- Settings
-Config.Debug = false -- Set to true to enable debug messages
+-- LogLevel: Set to "error", "warn", "info", "debug", or "trace"
+Config.LogLevel = "info" 
