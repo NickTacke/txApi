@@ -112,13 +112,19 @@ function txApi.txRequest(endpoint, options)
     options.headers = options.headers or {}
     options.headers['Cookie'] = authState.sessionCookie
     options.headers['X-TxAdmin-CsrfToken'] = authState.csrfToken
-    options.headers['Content-Type'] = 'application/json'
+    
+    -- Only set Content-Type to JSON if not already specified
+    if not options.headers['Content-Type'] then
+        options.headers['Content-Type'] = 'application/json'
+    end
 
-    -- Attempt to encode the body
+    -- Only JSON-encode body if it's a table and Content-Type is JSON
     if options.body then
-        local success, encoded = pcall(json.encode, options.body)
-        if success then
-            options.body = encoded
+        if type(options.body) == 'table' and options.headers['Content-Type'] == 'application/json' then
+            local success, encoded = pcall(json.encode, options.body)
+            if success then
+                options.body = encoded
+            end
         end
     else
         options.body = ''
