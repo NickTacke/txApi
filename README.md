@@ -234,6 +234,93 @@ txApi.server.stop()
   </details>
 </details>
 
+
+<details>
+  <summary><code>txApi.whitelist</code> — Whitelist management</summary>
+
+  **Functions**
+  
+  | Function | Description |
+  | --- | --- |
+  | `whitelist.getApprovals()` | List all approved whitelist identifiers |
+  | `whitelist.getWhitelistedPlayers(options)` | Search players who are whitelisted |
+  | `whitelist.getRequests()` | List all pending whitelist requests |
+  | `whitelist.add(identifier)` | Pre-approve an identifier (discord, steam, license, etc.) |
+  | `whitelist.setStatus(playerId, status)` | Toggle whitelist status for an existing player |
+  | `whitelist.approveRequest(reqId)` | Approve a pending whitelist request |
+  | `whitelist.denyRequest(reqId)` | Deny a pending whitelist request |
+  | `whitelist.denyAllRequests(newestVisible)` | Deny all visible pending requests |
+
+  **`whitelist.getWhitelistedPlayers` options**
+  
+  | Field | Type / Allowed Values | Notes |
+  | --- | --- | --- |
+  | `sortingKey` | `playTime` · `tsJoined` · `tsLastConnection` | Defaults to `tsJoined` |
+  | `sortingDesc` | `'true'` · `'false'` | Defaults to `'true'` |
+
+  **`whitelist.add` identifier formats**
+  - `discord:1234567890` — Discord user ID
+  - `steam:110000112345678` — Steam hex ID
+  - `license:abc123def456` — Rockstar license
+  - `live:1234567890` — Xbox Live ID
+  - `fivem:123456` — FiveM ID
+
+  **`whitelist.setStatus` parameters**
+  - `playerId`: net ID or identifier string (e.g. `license:abcdef...`)
+  - `status`: `true` to whitelist, `false` to remove
+
+  <details>
+    <summary>Examples</summary>
+
+```lua
+-- Pre-whitelist a Discord user before they join
+txApi.whitelist.add('discord:1160439375176405062')
+
+-- Pre-whitelist by Steam ID
+txApi.whitelist.add('steam:110000112345678')
+
+-- Pre-whitelist by Rockstar license
+txApi.whitelist.add('license:abc123def456789')
+
+-- Get all approved identifiers
+local approvals = txApi.whitelist.getApprovals()
+for _, entry in ipairs(approvals) do
+    print(('Approved: %s by %s'):format(entry.identifier, entry.addedBy))
+end
+
+-- Get all whitelisted players who have joined
+local players = txApi.whitelist.getWhitelistedPlayers()
+for _, player in ipairs(players) do
+    print(('Player: %s'):format(player.displayName))
+end
+
+-- Remove whitelist from a player by net ID
+txApi.whitelist.setStatus(12, false)
+
+-- Re-whitelist a player by license
+txApi.whitelist.setStatus('license:abc123', true)
+
+-- Get pending whitelist requests
+local requests = txApi.whitelist.getRequests()
+for _, req in ipairs(requests) do
+    print(('Request: %s - Discord: %s'):format(req.id, req.discordTag or 'N/A'))
+end
+
+-- Approve a pending request
+txApi.whitelist.approveRequest('ABC123')
+
+-- Deny a pending request
+txApi.whitelist.denyRequest('XYZ789')
+
+-- Deny all pending requests (use the newest request ID from getRequests)
+local requests = txApi.whitelist.getRequests()
+if requests[1] then
+    txApi.whitelist.denyAllRequests(requests[1].id)
+end
+```
+  </details>
+</details>
+
 ## Support
 
 Feel free to tag me in the official txAdmin discord <@!527236638041047050> or send a friend request to `arceas` and slide into my DMs.
