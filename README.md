@@ -251,7 +251,8 @@ txApi.server.stop()
   | `whitelist.getWhitelistedPlayers(options)` | Search players who are whitelisted |
   | `whitelist.getRequests()` | List all pending whitelist requests |
   | `whitelist.add(identifier)` | Pre-approve an identifier (discord, steam, license, etc.) |
-  | `whitelist.setStatus(playerId, status)` | Toggle whitelist status for an existing player |
+  | `whitelist.removeApproval(identifier)` | Remove a pre-approved identifier (removes from “Pending Join” table) |
+  | `whitelist.setStatus(playerId, status)` | If `playerId` is a net ID or license, toggles player whitelist; for non-license identifiers (eg `discord:...`) it adds/removes pre-approval |
   | `whitelist.approveRequest(reqId)` | Approve a pending whitelist request |
   | `whitelist.denyRequest(reqId)` | Deny a pending whitelist request |
   | `whitelist.denyAllRequests(newestVisible)` | Deny all visible pending requests |
@@ -280,6 +281,12 @@ txApi.server.stop()
 ```lua
 -- Pre-whitelist a Discord user before they join
 txApi.whitelist.add('discord:1160439375176405062')
+
+-- Remove a Discord user from the "Approved Whitelists Pending Join" table
+txApi.whitelist.removeApproval('discord:1160439375176405062')
+
+-- Same as above (for non-license identifiers, setStatus routes to approvals add/remove)
+txApi.whitelist.setStatus('discord:1160439375176405062', false)
 
 -- Pre-whitelist by Steam ID
 txApi.whitelist.add('steam:110000112345678')

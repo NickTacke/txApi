@@ -110,6 +110,36 @@ function txApi.whitelist.add(identifier)
     end
 end
 
+--- Remove an identifier from the whitelist pre-approvals (Pending Join table)
+--- Supports: discord, steam, license, live, xbl, fivem identifiers
+---@param identifier string e.g., "discord:123456", "steam:110000...", "license:abc..."
+---@return table
+function txApi.whitelist.removeApproval(identifier)
+    if not identifier or identifier == '' then
+        return { ok = false, status = 400, errorText = 'Identifier is required' }
+    end
+
+    txApi.log('info', 'Removing identifier approval from whitelist: ' .. identifier)
+
+    local response = txApi.txRequest('whitelist/approvals/remove', {
+        method = 'POST',
+        body = 'identifier=' .. encodeURIComponent(identifier),
+        headers = { ['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8' }
+    })
+
+    if not response.ok then
+        txApi.log('error', 'Failed to remove whitelist approval: ' .. (response.errorText or 'Unknown error'))
+        return { ok = false, status = response.status, errorText = response.errorText }
+    end
+
+    local success, decoded = pcall(json.decode, response.data)
+    if success and decoded then
+        return decoded
+    else
+        return { ok = true }
+    end
+end
+
 --- Set whitelist status for a player (add/remove from whitelist)
 ---@param playerId string|number Net ID or license identifier
 ---@param status boolean true = whitelist, false = remove
@@ -119,14 +149,30 @@ function txApi.whitelist.setStatus(playerId, status)
         return { ok = false, status = 400, errorText = 'Player ID is required' }
     end
 
+    if type(status) ~= 'boolean' then
+        return { ok = false, status = 400, errorText = 'Status must be a boolean' }
+    end
+
     -- Convert to string and strip prefix if needed
     if type(playerId) == 'number' then
         playerId = tostring(playerId)
     end
     
+    -- If this is a non-license identifier (eg discord:...), it belongs to the approvals table.
+    if type(playerId) == 'string' and playerId:find(':', 1, true) then
+        local prefix = playerId:match('^([^:]+):')
+        if prefix and prefix ~= 'license' and prefix ~= 'license2' then
+            if status then
+                return txApi.whitelist.add(playerId)
+            else
+                return txApi.whitelist.removeApproval(playerId)
+            end
+        end
+    end
+
     local cleanId = playerId
-    if playerId:find(':') then
-        cleanId = playerId:sub(playerId:find(':') + 1)
+    if type(playerId) == 'string' and playerId:find(':', 1, true) then
+        cleanId = playerId:sub(playerId:find(':', 1, true) + 1)
     end
 
     txApi.log('info', ('Setting whitelist status for %s to %s'):format(playerId, tostring(status)))
