@@ -207,6 +207,7 @@ txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'perman
   
   | Function | Description |
   | --- | --- |
+  | `server.uptime()` | Returns the current server uptime (`uptimeMs`, `uptimeSeconds`) |
   | `server.restart()` | Issue an FXServer restart |
   | `server.stop()` | Stop the FXServer instance |
 
@@ -214,6 +215,10 @@ txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'perman
     <summary>Examples</summary>
 
 ```lua
+-- Get current server uptime (ms/seconds)
+local up = txApi.server.uptime()
+print(('Uptime: %d seconds'):format(up.uptimeSeconds))
+
 -- Immediate restart
 txApi.server.restart()
 
