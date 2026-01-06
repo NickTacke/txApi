@@ -62,7 +62,11 @@ function txApi.players.search(options)
 
     if not response.ok then
         txApi.log('error', 'Failed to search players: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to search players'
+        }
     end
 
     -- Decode the response
@@ -70,8 +74,102 @@ function txApi.players.search(options)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode players response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode players response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode players response'
+        }
+    end
+end
+
+---@return table
+function txApi.players.stats()
+    txApi.log('debug', 'Fetching player stats')
+    local response = txApi.txRequest('player/stats', {
+        method = 'GET'
+    })
+
+    if not response.ok then
+        txApi.log('error', 'Failed to get players stats: ' .. response.errorText)
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get players stats'
+        }
+    end
+
+    local success, decoded = pcall(json.decode, response.data)
+    if success and decoded then
+        return decoded
+    else
+        txApi.log('error', 'Failed to decode players stats response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode players stats response'
+        }
+    end
+end
+
+---@param playerId string | number
+---@return table
+function txApi.players.get(playerId)
+    txApi.log('debug', 'Fetching player info: ' .. tostring(playerId))
+
+    if playerId == nil then
+        return {
+            ok = false,
+            status = 400,
+            errorText = 'Player id or license is required'
+        }
+    end
+
+    local endpoint
+    if type(playerId) == 'number' then
+        endpoint = 'player?mutex=current&netid=' .. tostring(playerId)
+    else
+        local idStr = tostring(playerId)
+
+        if idStr:find(':') then
+            local prefix = idStr:sub(1, idStr:find(':') - 1)
+            if prefix == 'license' or prefix == 'license2' then
+                idStr = idStr:sub(idStr:find(':') + 1)
+            else
+                return {
+                    ok = false,
+                    status = 400,
+                    errorText = 'Unsupported identifier type. Use netid (number) or license/license2.'
+                }
+            end
+        end
+
+        endpoint = 'player?license=' .. idStr
+    end
+
+    local response = txApi.txRequest(endpoint, {
+        method = 'GET'
+    })
+
+    if not response.ok then
+        txApi.log('error', 'Failed to get player info: ' .. response.errorText)
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get player info'
+        }
+    end
+
+    local success, decoded = pcall(json.decode, response.data)
+    if success and decoded then
+        return decoded
+    else
+        txApi.log('error', 'Failed to decode player info response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode player info response'
+        }
     end
 end
 
@@ -79,7 +177,6 @@ end
 ---@param playerId string | number
 ---@param body? any
 function txApi.players.action(action, playerId, body)
-    txApi.log('info', 'Executing player action: ' .. action .. ' for player id: ' .. playerId .. ' with body: ' .. json.encode(body))
     -- Check if a player id or license is provided
     if not playerId then
         return {
@@ -88,6 +185,8 @@ function txApi.players.action(action, playerId, body)
             errorText = 'Player id or license is required'
         }
     end
+
+    txApi.log('info', 'Executing player action: ' .. action .. ' for player id: ' .. tostring(playerId) .. ' with body: ' .. json.encode(body or {}))
 
     -- Check if the player id is a number and convert it to a string
     if type(playerId) == 'number' then
@@ -108,7 +207,11 @@ function txApi.players.action(action, playerId, body)
 
     if not response.ok then
         txApi.log('error', 'Failed to ' .. action .. ' player: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or ('Failed to ' .. action .. ' player')
+        }
     end
 
     -- Decode the response
@@ -116,8 +219,12 @@ function txApi.players.action(action, playerId, body)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode players response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode players response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode players response'
+        }
     end
 end
 
@@ -150,8 +257,8 @@ end
 
 ---@param playerId string | number
 ---@param reason string
----@return table
 ---@param duration string | 'permanent'
+---@return table
 function txApi.players.ban(playerId, reason, duration)
     return txApi.players.action('ban', playerId, {
         reason = reason or 'No reason provided',
