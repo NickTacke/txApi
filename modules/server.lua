@@ -119,7 +119,7 @@ function txApi.server.startResource(resourceName)
         name = name,
         previousState = previousState,
         state = state,
-        changed = true,
+        changed = (startedOk == true and state == 'started'),
         error = (startedOk == true) and nil or 'StartResource returned false',
     }
 end
@@ -148,7 +148,7 @@ function txApi.server.stopResource(resourceName)
         name = name,
         previousState = previousState,
         state = state,
-        changed = true,
+        changed = (stoppedOk == true and state ~= 'started'),
         error = (stoppedOk == true) and nil or 'StopResource returned false',
     }
 end
@@ -257,7 +257,6 @@ function txApi.server.getCfgEditorFile()
             method = 'GET',
             headers = {
                 ['Accept'] = 'text/html',
-                ['Content-Type'] = 'text/plain',
             }
         })
     end
