@@ -77,6 +77,7 @@ end
 
 ---@return table
 function txApi.players.stats()
+    txApi.log('debug', 'Fetching player stats')
     local response = txApi.txRequest('player/stats', {
         method = 'GET'
     })
