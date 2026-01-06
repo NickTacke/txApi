@@ -96,6 +96,59 @@ function txApi.players.stats()
     end
 end
 
+---@param playerId string | number
+---@return table
+function txApi.players.get(playerId)
+    txApi.log('debug', 'Fetching player info: ' .. tostring(playerId))
+
+    if playerId == nil then
+        return {
+            ok = false,
+            status = 400,
+            errorText = 'Player id or license is required'
+        }
+    end
+
+    local endpoint
+    if type(playerId) == 'number' then
+        endpoint = 'player?mutex=current&netid=' .. tostring(playerId)
+    else
+        local idStr = tostring(playerId)
+
+        if idStr:find(':') then
+            local prefix = idStr:sub(1, idStr:find(':') - 1)
+            if prefix == 'license' or prefix == 'license2' then
+                idStr = idStr:sub(idStr:find(':') + 1)
+            else
+                return {
+                    ok = false,
+                    status = 400,
+                    errorText = 'Unsupported identifier type. Use netid (number) or license/license2.'
+                }
+            end
+        end
+
+        endpoint = 'player?license=' .. idStr
+    end
+
+    local response = txApi.txRequest(endpoint, {
+        method = 'GET'
+    })
+
+    if not response.ok then
+        txApi.log('error', 'Failed to get player info: ' .. response.errorText)
+        return {}
+    end
+
+    local success, decoded = pcall(json.decode, response.data)
+    if success and decoded then
+        return decoded
+    else
+        txApi.log('error', 'Failed to decode player info response: ' .. response.errorText)
+        return {}
+    end
+end
+
 ---@param action 'message' | 'warn' | 'kick' | 'ban'
 ---@param playerId string | number
 ---@param body? any

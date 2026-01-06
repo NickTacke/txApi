@@ -131,6 +131,7 @@ end
   | --- | --- |
   | `players.search(options)` | Find players by name, identifiers, or notes |
   | `players.stats()` | Fetch players metrics (total, active/new in last 24h, new in last 7d) |
+  | `players.get(playerId)` | Fetch a single player profile (includes `playTime`) by net ID or license |
   | `players.action(action, playerId, body)` | Low-level helper backing the wrappers |
   | `players.message(playerId, message)` | Send a message to a player |
   | `players.warn(playerId, reason)` | Issue a warning |
@@ -168,6 +169,14 @@ local stats = txApi.players.stats()
 if stats and not stats.error then
   print(('Total: %d | Played 24h: %d | Joined 24h: %d | Joined 7d: %d')
     :format(stats.total, stats.playedLast24h, stats.joinedLast24h, stats.joinedLast7d))
+end
+
+-- Total playtime comes from txAdmin's player database (keyed by license).
+-- You can't derive historical playtime from identifiers alone without stored data.
+-- This endpoint returns a profile containing playTime (in minutes).
+local profile = txApi.players.get('license:abcdef1234')
+if profile and profile.player and profile.player.playTime then
+  print(('Total playtime: %d minutes'):format(profile.player.playTime))
 end
 
 -- Find players whose name starts with "Riley"
