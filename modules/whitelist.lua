@@ -20,7 +20,11 @@ function txApi.whitelist.getApprovals()
     local response = txApi.txRequest('whitelist/approvals', { method = 'GET' })
     if not response.ok then
         txApi.log('error', 'Failed to get whitelist approvals: ' .. (response.errorText or 'Unknown error'))
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get whitelist approvals'
+        }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -28,7 +32,11 @@ function txApi.whitelist.getApprovals()
         return decoded
     else
         txApi.log('error', 'Failed to decode whitelist approvals response')
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode whitelist approvals response'
+        }
     end
 end
 
@@ -48,7 +56,11 @@ function txApi.whitelist.getWhitelistedPlayers(options)
     local response = txApi.txRequest('player/search?' .. table.concat(queryParams, '&'), { method = 'GET' })
     if not response.ok then
         txApi.log('error', 'Failed to get whitelisted players: ' .. (response.errorText or 'Unknown error'))
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get whitelisted players'
+        }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -56,7 +68,11 @@ function txApi.whitelist.getWhitelistedPlayers(options)
         return decoded
     else
         txApi.log('error', 'Failed to decode whitelisted players response')
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode whitelisted players response'
+        }
     end
 end
 
@@ -68,7 +84,11 @@ function txApi.whitelist.getRequests()
     local response = txApi.txRequest('whitelist/requests', { method = 'GET' })
     if not response.ok then
         txApi.log('error', 'Failed to get whitelist requests: ' .. (response.errorText or 'Unknown error'))
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get whitelist requests'
+        }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -76,7 +96,11 @@ function txApi.whitelist.getRequests()
         return decoded
     else
         txApi.log('error', 'Failed to decode whitelist requests response')
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode whitelist requests response'
+        }
     end
 end
 
@@ -99,7 +123,7 @@ function txApi.whitelist.add(identifier)
 
     if not response.ok then
         txApi.log('error', 'Failed to add to whitelist: ' .. (response.errorText or 'Unknown error'))
-        return { ok = false, status = response.status, errorText = response.errorText }
+        return { ok = false, status = response.status, errorText = response.errorText or 'Failed to add to whitelist' }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -129,7 +153,7 @@ function txApi.whitelist.removeApproval(identifier)
 
     if not response.ok then
         txApi.log('error', 'Failed to remove whitelist approval: ' .. (response.errorText or 'Unknown error'))
-        return { ok = false, status = response.status, errorText = response.errorText }
+        return { ok = false, status = response.status, errorText = response.errorText or 'Failed to remove whitelist approval' }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -189,7 +213,7 @@ function txApi.whitelist.setStatus(playerId, status)
 
     if not response.ok then
         txApi.log('error', 'Failed to set whitelist status: ' .. (response.errorText or 'Unknown error'))
-        return { ok = false, status = response.status, errorText = response.errorText }
+        return { ok = false, status = response.status, errorText = response.errorText or 'Failed to set whitelist status' }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -217,7 +241,7 @@ function txApi.whitelist.approveRequest(reqId)
 
     if not response.ok then
         txApi.log('error', 'Failed to approve whitelist request: ' .. (response.errorText or 'Unknown error'))
-        return { ok = false, status = response.status, errorText = response.errorText }
+        return { ok = false, status = response.status, errorText = response.errorText or 'Failed to approve whitelist request' }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -245,7 +269,7 @@ function txApi.whitelist.denyRequest(reqId)
 
     if not response.ok then
         txApi.log('error', 'Failed to deny whitelist request: ' .. (response.errorText or 'Unknown error'))
-        return { ok = false, status = response.status, errorText = response.errorText }
+        return { ok = false, status = response.status, errorText = response.errorText or 'Failed to deny whitelist request' }
     end
 
     local success, decoded = pcall(json.decode, response.data)
@@ -273,7 +297,7 @@ function txApi.whitelist.denyAllRequests(newestVisible)
 
     if not response.ok then
         txApi.log('error', 'Failed to deny all whitelist requests: ' .. (response.errorText or 'Unknown error'))
-        return { ok = false, status = response.status, errorText = response.errorText }
+        return { ok = false, status = response.status, errorText = response.errorText or 'Failed to deny all whitelist requests' }
     end
 
     local success, decoded = pcall(json.decode, response.data)

@@ -66,13 +66,13 @@ function txApi.server.uptime()
     }
 end
 
----@return { ok: boolean, count?: number, resources?: { name: string, state: string }[], error?: string }
+---@return { ok: boolean, count?: number, resources?: { name: string, state: string }[], errorText?: string }
 function txApi.server.getResourceList()
     if type(GetNumResources) ~= 'function'
         or type(GetResourceByFindIndex) ~= 'function'
         or type(GetResourceState) ~= 'function'
     then
-        return { ok = false, error = 'Resource listing natives are not available in this runtime.' }
+        return { ok = false, errorText = 'Resource listing natives are not available in this runtime.' }
     end
 
     local resources = {}
@@ -96,13 +96,13 @@ function txApi.server.getResourceList()
 end
 
 ---@param resourceName string
----@return { ok: boolean, name?: string, previousState?: string, state?: string, changed?: boolean, error?: string }
+---@return { ok: boolean, name?: string, previousState?: string, state?: string, changed?: boolean, errorText?: string }
 function txApi.server.startResource(resourceName)
     local name, err = normalizeResourceName(resourceName)
-    if not name then return { ok = false, error = err } end
+    if not name then return { ok = false, errorText = err } end
 
     if type(GetResourceState) ~= 'function' or type(StartResource) ~= 'function' then
-        return { ok = false, error = 'StartResource/GetResourceState natives are not available in this runtime.' }
+        return { ok = false, errorText = 'StartResource/GetResourceState natives are not available in this runtime.' }
     end
 
     local previousState = GetResourceState(name)
@@ -120,18 +120,18 @@ function txApi.server.startResource(resourceName)
         previousState = previousState,
         state = state,
         changed = (startedOk == true and state == 'started'),
-        error = (startedOk == true) and nil or 'StartResource returned false',
+        errorText = (startedOk == true) and nil or 'StartResource returned false',
     }
 end
 
 ---@param resourceName string
----@return { ok: boolean, name?: string, previousState?: string, state?: string, changed?: boolean, error?: string }
+---@return { ok: boolean, name?: string, previousState?: string, state?: string, changed?: boolean, errorText?: string }
 function txApi.server.stopResource(resourceName)
     local name, err = normalizeResourceName(resourceName)
-    if not name then return { ok = false, error = err } end
+    if not name then return { ok = false, errorText = err } end
 
     if type(GetResourceState) ~= 'function' or type(StopResource) ~= 'function' then
-        return { ok = false, error = 'StopResource/GetResourceState natives are not available in this runtime.' }
+        return { ok = false, errorText = 'StopResource/GetResourceState natives are not available in this runtime.' }
     end
 
     local previousState = GetResourceState(name)
@@ -149,18 +149,18 @@ function txApi.server.stopResource(resourceName)
         previousState = previousState,
         state = state,
         changed = (stoppedOk == true and state ~= 'started'),
-        error = (stoppedOk == true) and nil or 'StopResource returned false',
+        errorText = (stoppedOk == true) and nil or 'StopResource returned false',
     }
 end
 
 ---@param resourceName string
----@return { ok: boolean, name?: string, previousState?: string, state?: string, error?: string }
+---@return { ok: boolean, name?: string, previousState?: string, state?: string, errorText?: string }
 function txApi.server.restartResource(resourceName)
     local name, err = normalizeResourceName(resourceName)
-    if not name then return { ok = false, error = err } end
+    if not name then return { ok = false, errorText = err } end
 
     if type(GetResourceState) ~= 'function' then
-        return { ok = false, error = 'GetResourceState native is not available in this runtime.' }
+        return { ok = false, errorText = 'GetResourceState native is not available in this runtime.' }
     end
 
     local previousState = GetResourceState(name)
@@ -173,7 +173,7 @@ function txApi.server.restartResource(resourceName)
             name = name,
             previousState = previousState,
             state = GetResourceState(name),
-            error = (restartedOk == true) and nil or 'RestartResource returned false',
+            errorText = (restartedOk == true) and nil or 'RestartResource returned false',
         }
     end
 
@@ -185,7 +185,7 @@ function txApi.server.restartResource(resourceName)
     end
 
     if type(StartResource) ~= 'function' then
-        return { ok = false, name = name, previousState = previousState, state = GetResourceState(name), error = 'StartResource native is not available in this runtime.' }
+        return { ok = false, name = name, previousState = previousState, state = GetResourceState(name), errorText = 'StartResource native is not available in this runtime.' }
     end
 
     local startedOk = StartResource(name)
@@ -195,7 +195,7 @@ function txApi.server.restartResource(resourceName)
         name = name,
         previousState = previousState,
         state = GetResourceState(name),
-        error = (startedOk == true) and nil or 'StartResource returned false',
+        errorText = (startedOk == true) and nil or 'StartResource returned false',
     }
 end
 

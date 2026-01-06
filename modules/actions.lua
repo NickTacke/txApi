@@ -62,7 +62,11 @@ function txApi.actions.search(options)
 
     if not response.ok then
         txApi.log('error', 'Failed to search actions: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to search actions'
+        }
     end
 
     -- Decode the response
@@ -70,8 +74,12 @@ function txApi.actions.search(options)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode actions response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode actions response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode actions response'
+        }
     end
 end
 
@@ -84,7 +92,11 @@ function txApi.actions.stats()
 
     if not response.ok then
         txApi.log('error', 'Failed to get actions stats: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get actions stats'
+        }
     end
 
     -- Decode the response
@@ -92,8 +104,12 @@ function txApi.actions.stats()
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode actions stats response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode actions stats response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode actions stats response'
+        }
     end
 end
 
@@ -110,7 +126,11 @@ function txApi.actions.revoke(actionId)
 
     if not response.ok then
         txApi.log('error', 'Failed to revoke action: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to revoke action'
+        }
     end
 
     -- Decode the response
@@ -118,8 +138,12 @@ function txApi.actions.revoke(actionId)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode actions revoke response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode actions revoke response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode actions revoke response'
+        }
     end
 end
 

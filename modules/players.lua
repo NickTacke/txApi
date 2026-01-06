@@ -62,7 +62,11 @@ function txApi.players.search(options)
 
     if not response.ok then
         txApi.log('error', 'Failed to search players: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to search players'
+        }
     end
 
     -- Decode the response
@@ -70,8 +74,12 @@ function txApi.players.search(options)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode players response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode players response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode players response'
+        }
     end
 end
 
@@ -84,15 +92,23 @@ function txApi.players.stats()
 
     if not response.ok then
         txApi.log('error', 'Failed to get players stats: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get players stats'
+        }
     end
 
     local success, decoded = pcall(json.decode, response.data)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode players stats response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode players stats response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode players stats response'
+        }
     end
 end
 
@@ -137,15 +153,23 @@ function txApi.players.get(playerId)
 
     if not response.ok then
         txApi.log('error', 'Failed to get player info: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or 'Failed to get player info'
+        }
     end
 
     local success, decoded = pcall(json.decode, response.data)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode player info response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode player info response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode player info response'
+        }
     end
 end
 
@@ -153,7 +177,6 @@ end
 ---@param playerId string | number
 ---@param body? any
 function txApi.players.action(action, playerId, body)
-    txApi.log('info', 'Executing player action: ' .. action .. ' for player id: ' .. playerId .. ' with body: ' .. json.encode(body))
     -- Check if a player id or license is provided
     if not playerId then
         return {
@@ -162,6 +185,8 @@ function txApi.players.action(action, playerId, body)
             errorText = 'Player id or license is required'
         }
     end
+
+    txApi.log('info', 'Executing player action: ' .. action .. ' for player id: ' .. tostring(playerId) .. ' with body: ' .. json.encode(body or {}))
 
     -- Check if the player id is a number and convert it to a string
     if type(playerId) == 'number' then
@@ -182,7 +207,11 @@ function txApi.players.action(action, playerId, body)
 
     if not response.ok then
         txApi.log('error', 'Failed to ' .. action .. ' player: ' .. response.errorText)
-        return {}
+        return {
+            ok = false,
+            status = response.status,
+            errorText = response.errorText or ('Failed to ' .. action .. ' player')
+        }
     end
 
     -- Decode the response
@@ -190,8 +219,12 @@ function txApi.players.action(action, playerId, body)
     if success and decoded then
         return decoded
     else
-        txApi.log('error', 'Failed to decode players response: ' .. response.errorText)
-        return {}
+        txApi.log('error', 'Failed to decode players response')
+        return {
+            ok = false,
+            status = response.status,
+            errorText = 'Failed to decode players response'
+        }
     end
 end
 
@@ -224,8 +257,8 @@ end
 
 ---@param playerId string | number
 ---@param reason string
----@return table
 ---@param duration string | 'permanent'
+---@return table
 function txApi.players.ban(playerId, reason, duration)
     return txApi.players.action('ban', playerId, {
         reason = reason or 'No reason provided',

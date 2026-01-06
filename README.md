@@ -64,7 +64,7 @@ txApi.server.restart()
 - `body`: string or table payload (tables are JSON-encoded automatically by `txRequest`).
 - `headers`: table<string, any> of additional headers.
 
-All helpers return decoded tables when possible; on failure they log and return `{ ok = false, status = <code>, errorText = <message> }` or `{}`.
+All helpers return decoded tables when possible; on failure they log and return `{ ok = false, status = <code>, errorText = <message> }`.
 
 ### Modules
 
@@ -102,11 +102,17 @@ txApi.actions.search({ identifier = 'license:1234', sortingKey = 'playerName', s
 
 -- Snapshot the current totals
 local totals = txApi.actions.stats()
-print(('Warns: %s, Bans: %s'):format(totals.totalWarns, totals.totalBans))
+if totals.ok == false then
+  print(('Failed to fetch stats: %s'):format(totals.errorText or 'unknown'))
+else
+  print(('Warns: %s, Bans: %s'):format(totals.totalWarns, totals.totalBans))
+end
 
 -- Compare against a previous run
 local current = txApi.actions.stats()
-if previousStats and current.totalBans > previousStats.totalBans then
+if current.ok == false then
+  txApi.log('error', 'Failed to fetch current stats: ' .. (current.errorText or 'unknown'))
+elseif previousStats and current.totalBans > previousStats.totalBans then
     txApi.log('warn', 'New bans detected since last check')
 end
 
@@ -115,7 +121,9 @@ txApi.actions.revoke('WACS-12GF')
 
 -- Revoke the first result from a search
 local results = txApi.actions.search({ identifier = 'license:1234' })
-if results[1] then
+if results.ok == false then
+  txApi.log('error', 'Search failed: ' .. (results.errorText or 'unknown'))
+elseif results[1] then
     txApi.actions.revoke(results[1].actionId)
 end
 ```
@@ -166,7 +174,9 @@ end
 -- Players page callouts
 -- Returns: { total, playedLast24h, joinedLast24h, joinedLast7d }
 local stats = txApi.players.stats()
-if stats and not stats.error then
+if stats and stats.ok == false then
+  print(('Failed to get stats: %s'):format(stats.errorText or 'unknown'))
+else
   print(('Total: %d | Played 24h: %d | Joined 24h: %d | Joined 7d: %d')
     :format(stats.total, stats.playedLast24h, stats.joinedLast24h, stats.joinedLast7d))
 end
@@ -175,7 +185,9 @@ end
 -- You can't derive historical playtime from identifiers alone without stored data.
 -- This endpoint returns a profile containing playTime (in minutes).
 local profile = txApi.players.get('license:abcdef1234')
-if profile and profile.player and profile.player.playTime then
+if profile and profile.ok == false then
+  print(('Failed to get player: %s'):format(profile.errorText or 'unknown'))
+elseif profile and profile.player and profile.player.playTime then
   print(('Total playtime: %d minutes'):format(profile.player.playTime))
 end
 
@@ -225,8 +237,8 @@ txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'perman
   
   | Function | Description |
   | --- | --- |
-  | `server.uptime()` | Returns the current server uptime (`uptimeMs`, `uptimeSeconds`) |
-  | `server.getResourceList()` | Returns the current FXServer resource list (`name`, `state`) |
+  | `server.uptime()` | Returns `{ ok = true, uptimeMs, uptimeSeconds }` |
+  | `server.getResourceList()` | Returns `{ ok, count, resources = [{ name, state }, ...], errorText? }` |
   | `server.startResource(resourceName)` | Start a resource by name |
   | `server.stopResource(resourceName)` | Stop a resource by name |
   | `server.restartResource(resourceName)` | Restart a resource by name (starts it if stopped) |
@@ -241,7 +253,9 @@ txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'perman
 ```lua
 -- Get current server uptime (ms/seconds)
 local up = txApi.server.uptime()
-print(('Uptime: %d seconds'):format(up.uptimeSeconds))
+if up.ok then
+  print(('Uptime: %d seconds'):format(up.uptimeSeconds))
+end
 
 -- List resources + their states
 local res = txApi.server.getResourceList()
@@ -355,14 +369,22 @@ txApi.whitelist.add('license:abc123def456789')
 
 -- Get all approved identifiers
 local approvals = txApi.whitelist.getApprovals()
-for _, entry in ipairs(approvals) do
+if approvals.ok == false then
+  print(('Failed to fetch approvals: %s'):format(approvals.errorText or 'unknown'))
+else
+  for _, entry in ipairs(approvals) do
     print(('Approved: %s by %s'):format(entry.identifier, entry.addedBy))
+  end
 end
 
 -- Get all whitelisted players who have joined
 local players = txApi.whitelist.getWhitelistedPlayers()
-for _, player in ipairs(players) do
+if players.ok == false then
+  print(('Failed to fetch whitelisted players: %s'):format(players.errorText or 'unknown'))
+else
+  for _, player in ipairs(players) do
     print(('Player: %s'):format(player.displayName))
+  end
 end
 
 -- Remove whitelist from a player by net ID
@@ -373,8 +395,12 @@ txApi.whitelist.setStatus('license:abc123', true)
 
 -- Get pending whitelist requests
 local requests = txApi.whitelist.getRequests()
-for _, req in ipairs(requests) do
+if requests.ok == false then
+  print(('Failed to fetch whitelist requests: %s'):format(requests.errorText or 'unknown'))
+else
+  for _, req in ipairs(requests) do
     print(('Request: %s - Discord: %s'):format(req.id, req.discordTag or 'N/A'))
+  end
 end
 
 -- Approve a pending request
@@ -385,7 +411,9 @@ txApi.whitelist.denyRequest('XYZ789')
 
 -- Deny all pending requests (use the newest request ID from getRequests)
 local requests = txApi.whitelist.getRequests()
-if requests[1] then
+if requests.ok == false then
+  print(('Failed to fetch whitelist requests: %s'):format(requests.errorText or 'unknown'))
+elseif requests[1] then
     txApi.whitelist.denyAllRequests(requests[1].id)
 end
 ```
