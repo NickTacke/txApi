@@ -75,6 +75,26 @@ function txApi.players.search(options)
     end
 end
 
+---@return table
+function txApi.players.stats()
+    local response = txApi.txRequest('player/stats', {
+        method = 'GET'
+    })
+
+    if not response.ok then
+        txApi.log('error', 'Failed to get players stats: ' .. response.errorText)
+        return {}
+    end
+
+    local success, decoded = pcall(json.decode, response.data)
+    if success and decoded then
+        return decoded
+    else
+        txApi.log('error', 'Failed to decode players stats response: ' .. response.errorText)
+        return {}
+    end
+end
+
 ---@param action 'message' | 'warn' | 'kick' | 'ban'
 ---@param playerId string | number
 ---@param body? any

@@ -130,6 +130,7 @@ end
   | Function | Description |
   | --- | --- |
   | `players.search(options)` | Find players by name, identifiers, or notes |
+  | `players.stats()` | Fetch players metrics (total, active/new in last 24h, new in last 7d) |
   | `players.action(action, playerId, body)` | Low-level helper backing the wrappers |
   | `players.message(playerId, message)` | Send a message to a player |
   | `players.warn(playerId, reason)` | Issue a warning |
@@ -161,6 +162,14 @@ end
     <summary>Examples</summary>
 
 ```lua
+-- Players page callouts
+-- Returns: { total, playedLast24h, joinedLast24h, joinedLast7d }
+local stats = txApi.players.stats()
+if stats and not stats.error then
+  print(('Total: %d | Played 24h: %d | Joined 24h: %d | Joined 7d: %d')
+    :format(stats.total, stats.playedLast24h, stats.joinedLast24h, stats.joinedLast7d))
+end
+
 -- Find players whose name starts with "Riley"
 txApi.players.search({ name = 'Riley', sortingKey = 'tsLastConnection' })
 
