@@ -311,7 +311,7 @@ txApi.server.stop()
   | `whitelist.getRequests()` | List all pending whitelist requests |
   | `whitelist.add(identifier)` | Pre-approve an identifier (discord, steam, license, etc.) |
   | `whitelist.removeApproval(identifier)` | Remove a pre-approved identifier (removes from “Pending Join” table) |
-  | `whitelist.setStatus(playerId, status)` | Whitelist or remove a player; (1) for net IDs or licenses: toggles whitelist status, (2) for non-license identifiers (e.g. `discord:...`, `steam:...`): `true` adds approval, `false` removes approval |
+  | `whitelist.setStatus(playerId, status)` | Whitelist or remove a player by setting `status` true/false; (1) for net IDs or licenses: sets whitelist status, (2) for non-license identifiers (e.g. `discord:...`, `steam:...`): `true` adds approval, `false` removes approval |
   | `whitelist.approveRequest(reqId)` | Approve a pending whitelist request |
   | `whitelist.denyRequest(reqId)` | Deny a pending whitelist request |
   | `whitelist.denyAllRequests(newestVisible)` | Deny all visible pending requests |
