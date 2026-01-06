@@ -272,7 +272,7 @@ if cfg.ok then
   local edited = cfg.cfgData .. "\n# edited via txApi\n"
   local saved = txApi.server.saveCfgEditorFile(edited)
   if not saved.ok then
-    print(('Save failed (%s): %s'):format(saved.type or 'error', saved.message or saved.errorText or 'unknown'))
+    print(('Save failed: %s'):format(saved.errorText or 'unknown'))
   else
     print('CFG saved successfully')
   end
@@ -311,7 +311,7 @@ txApi.server.stop()
   | `whitelist.getRequests()` | List all pending whitelist requests |
   | `whitelist.add(identifier)` | Pre-approve an identifier (discord, steam, license, etc.) |
   | `whitelist.removeApproval(identifier)` | Remove a pre-approved identifier (removes from “Pending Join” table) |
-  | `whitelist.setStatus(playerId, status)` | If `playerId` is a net ID or license, toggles player whitelist; for non-license identifiers (eg `discord:...`), `true` adds approval and `false` removes approval |
+  | `whitelist.setStatus(playerId, status)` | Whitelist or remove a player; (1) for net IDs or licenses: toggles whitelist status, (2) for non-license identifiers (e.g. `discord:...`, `steam:...`): `true` adds approval, `false` removes approval |
   | `whitelist.approveRequest(reqId)` | Approve a pending whitelist request |
   | `whitelist.denyRequest(reqId)` | Deny a pending whitelist request |
   | `whitelist.denyAllRequests(newestVisible)` | Deny all visible pending requests |
