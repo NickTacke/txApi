@@ -208,6 +208,12 @@ txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'perman
   | Function | Description |
   | --- | --- |
   | `server.uptime()` | Returns the current server uptime (`uptimeMs`, `uptimeSeconds`) |
+  | `server.getResourceList()` | Returns the current FXServer resource list (`name`, `state`) |
+  | `server.startResource(resourceName)` | Start a resource by name |
+  | `server.stopResource(resourceName)` | Stop a resource by name |
+  | `server.restartResource(resourceName)` | Restart a resource by name (starts it if stopped) |
+  | `server.getCfgEditorFile()` | Fetch the current `server.cfg` contents via txAdmin’s CFG Editor page |
+  | `server.saveCfgEditorFile(cfgData)` | Save `server.cfg` contents via txAdmin’s CFG Editor API |
   | `server.restart()` | Issue an FXServer restart |
   | `server.stop()` | Stop the FXServer instance |
 
@@ -218,6 +224,41 @@ txApi.players.ban('license:abcdefabcdef', 'Cheating with injected menu', 'perman
 -- Get current server uptime (ms/seconds)
 local up = txApi.server.uptime()
 print(('Uptime: %d seconds'):format(up.uptimeSeconds))
+
+-- List resources + their states
+local res = txApi.server.getResourceList()
+if res.ok then
+  print(('Resources: %d'):format(res.count))
+  -- Example: print first 5
+  for i = 1, math.min(5, res.count) do
+    print(('%s (%s)'):format(res.resources[i].name, res.resources[i].state))
+  end
+end
+
+-- Resource controls
+txApi.server.restartResource('my_resource')
+txApi.server.stopResource('my_resource')
+txApi.server.startResource('my_resource')
+
+-- Read txAdmin CFG Editor contents (server.cfg)
+local cfg = txApi.server.getCfgEditorFile()
+if cfg.ok then
+  print(cfg.cfgData)
+else
+  print(('Failed to get cfg: %s'):format(cfg.errorText or 'unknown'))
+end
+
+-- Save txAdmin CFG Editor contents (server.cfg)
+-- Example: append a comment and save
+if cfg.ok then
+  local edited = cfg.cfgData .. "\n# edited via txApi\n"
+  local saved = txApi.server.saveCfgEditorFile(edited)
+  if not saved.ok then
+    print(('Save failed (%s): %s'):format(saved.type or 'error', saved.message or saved.errorText or 'unknown'))
+  else
+    print('CFG saved successfully')
+  end
+end
 
 -- Immediate restart
 txApi.server.restart()
